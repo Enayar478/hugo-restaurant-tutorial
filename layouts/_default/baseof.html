@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>{{ if not .IsHome }}{{ .Title }} · {{ end }}{{ .Site.Title }}</title>
+<meta name="description" content="{{ .Site.Params.description }}">
+<meta name="theme-color" content="#C0653B">
+<link rel="manifest" href="{{ "manifest.webmanifest" | relURL }}">
+<link rel="icon" href="{{ "icons/icon.svg" | relURL }}" type="image/svg+xml">
+<link rel="apple-touch-icon" href="{{ "icons/icon-192.png" | relURL }}">
+<link rel="stylesheet" href="{{ "css/main.css" | relURL }}">
+</head>
+<body>
+<header class="topbar">
+  <a class="brand" href="{{ "" | relURL }}">🧥 Le Vestiaire</a>
+  <nav>
+    <a href="{{ "garde-robe/" | relURL }}">Garde-robe</a>
+    <a href="{{ "tenues/" | relURL }}">Tenues</a>
+    <a href="{{ "studio/" | relURL }}">Studio</a>
+    <a href="{{ "wishlist/" | relURL }}">Wishlist</a>
+    <a href="{{ "ventes/" | relURL }}">Ventes</a>
+    <a href="{{ "boutiques/" | relURL }}">Boutiques</a>
+    <a href="{{ "guide/" | relURL }}">Guide</a>
+  </nav>
+</header>
+<main>
+{{ block "main" . }}{{ end }}
+</main>
+<footer class="footer">
+  <p>Automne Chaud · Ivy League / Workwear / Militaire — <em>Courage · Respect · Honneur</em></p>
+</footer>
+<script>
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.register('{{ "sw.js" | relURL }}');
+}
+</script>
+</body>
+</html>

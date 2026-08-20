@@ -1,0 +1,18 @@
+{{ define "main" }}
+<article class="detail">
+  <p><a href="{{ "wishlist/" | relURL }}">← Wishlist</a></p>
+  <h1>{{ .Title }}</h1>
+  <p>
+    <span class="badge badge-{{ .Params.priorite }}">priorité {{ .Params.priorite }}</span>
+    {{ with .Params.source }}<span class="badge">{{ . }}</span>{{ end }}
+  </p>
+  {{ with .Params.image }}<img class="photo" src="{{ . }}" alt="{{ $.Title }}">{{ end }}
+  <dl class="specs">
+    {{ with .Params.marque }}<dt>Marque</dt><dd>{{ . }}</dd>{{ end }}
+    {{ with .Params.prix }}<dt>Prix</dt><dd>{{ . }} €</dd>{{ end }}
+    {{ with .Params.categorie }}<dt>Catégorie</dt><dd>{{ . | humanize }}</dd>{{ end }}
+  </dl>
+  {{ with .Params.lien }}<p><a class="btn" href="{{ . }}" target="_blank" rel="noopener">Voir l'article ↗</a></p>{{ end }}
+  <div class="prose">{{ .Content }}</div>
+</article>
+{{ end }}

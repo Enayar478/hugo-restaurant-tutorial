@@ -1,0 +1,26 @@
+{{ define "main" }}
+<article class="detail">
+  <p><a href="{{ "tenues/" | relURL }}">← Tenues</a></p>
+  <h1>{{ .Title }}</h1>
+  <p>
+    {{ with .Params.occasion }}<span class="badge">{{ . | humanize }}</span>{{ end }}
+    {{ with .Params.saison }}<span class="badge">{{ delimit . ", " }}</span>{{ end }}
+  </p>
+  <h2>La composition</h2>
+  <div class="cards">
+  {{ range .Params.pieces }}
+    {{ $slug := . }}
+    {{ $p := index (where (where site.RegularPages "Section" "garde-robe") "File.BaseFileName" $slug) 0 }}
+    {{ if $p }}
+    <a class="card" href="{{ $p.RelPermalink }}">
+      <h3>{{ $p.Title }}</h3>
+      <p>{{ $p.Params.marque }}{{ with $p.Params.couleur }} · {{ . }}{{ end }}</p>
+    </a>
+    {{ else }}
+    <div class="card card-missing"><h3>{{ $slug }}</h3><p class="muted">pièce introuvable dans la garde-robe</p></div>
+    {{ end }}
+  {{ end }}
+  </div>
+  <div class="prose">{{ .Content }}</div>
+</article>
+{{ end }}

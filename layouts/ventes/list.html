@@ -1,0 +1,14 @@
+{{ define "main" }}
+<h1>Ventes</h1>
+<p class="lead">Mes annonces Vinted : je prépare ici, je copie-colle là-bas.</p>
+<p class="hint">💡 La skill <code>/annonce-vinted &lt;slug-de-piece&gt;</code> rédige un brouillon d'annonce complet.</p>
+<div class="cards">
+{{ range .Pages }}
+  <a class="card" href="{{ .RelPermalink }}">
+    <span class="badge badge-{{ .Params.statut }}">{{ .Params.statut }}</span>
+    <h3>{{ .Title }}</h3>
+    <p>{{ with .Params.prix }}{{ . }} €{{ end }}{{ with .Params.etat }} · {{ . }}{{ end }}</p>
+  </a>
+{{ end }}
+</div>
+{{ end }}

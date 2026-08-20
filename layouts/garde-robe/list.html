@@ -1,0 +1,51 @@
+{{ define "main" }}
+<h1>Garde-robe</h1>
+<p class="lead">{{ len .Pages }} pièces référencées.</p>
+
+<div class="filters" id="filters">
+  <div class="filter-group" data-filter="categorie">
+    <button class="chip is-active" data-value="">Tout</button>
+    <button class="chip" data-value="veste">Vestes</button>
+    <button class="chip" data-value="haut">Hauts</button>
+    <button class="chip" data-value="pantalon">Pantalons</button>
+    <button class="chip" data-value="chaussures">Chaussures</button>
+    <button class="chip" data-value="accessoire">Accessoires</button>
+  </div>
+  <div class="filter-group" data-filter="statut">
+    <button class="chip is-active" data-value="">Tous statuts</button>
+    <button class="chip" data-value="possede">Possédées</button>
+    <button class="chip" data-value="a-acquerir">À acquérir</button>
+    <button class="chip" data-value="en-vente">En vente</button>
+    <button class="chip" data-value="vendu">Vendues</button>
+  </div>
+</div>
+
+<div class="cards" id="pieces">
+{{ range sort .Pages "Params.categorie" }}
+  <a class="card piece" href="{{ .RelPermalink }}"
+     data-categorie="{{ .Params.categorie }}" data-statut="{{ .Params.statut }}">
+    <span class="badge badge-{{ .Params.statut }}">{{ .Params.statut | humanize }}</span>
+    <h3>{{ .Title }}</h3>
+    <p>{{ .Params.marque }}{{ with .Params.couleur }} · {{ . }}{{ end }}{{ with .Params.prix }} · ~{{ . }} €{{ end }}</p>
+  </a>
+{{ end }}
+</div>
+
+<script>
+document.querySelectorAll('.filter-group').forEach(group => {
+  group.addEventListener('click', e => {
+    const btn = e.target.closest('.chip'); if (!btn) return;
+    group.querySelectorAll('.chip').forEach(c => c.classList.remove('is-active'));
+    btn.classList.add('is-active');
+    const active = {};
+    document.querySelectorAll('.filter-group').forEach(g => {
+      active[g.dataset.filter] = g.querySelector('.is-active').dataset.value;
+    });
+    document.querySelectorAll('.piece').forEach(p => {
+      const ok = Object.entries(active).every(([k, v]) => !v || p.dataset[k] === v);
+      p.style.display = ok ? '' : 'none';
+    });
+  });
+});
+</script>
+{{ end }}

@@ -1,0 +1,25 @@
+{{ define "main" }}
+<article class="detail">
+  <p><a href="{{ "ventes/" | relURL }}">← Ventes</a></p>
+  <h1>{{ .Title }}</h1>
+  <p>
+    <span class="badge badge-{{ .Params.statut }}">{{ .Params.statut }}</span>
+    {{ with .Params.prix }}<span class="badge">{{ . }} €</span>{{ end }}
+    {{ with .Params.etat }}<span class="badge">{{ . }}</span>{{ end }}
+  </p>
+  <h2>Texte de l'annonce</h2>
+  <div class="annonce prose" id="annonce">{{ .Content }}</div>
+  <p><button class="btn" id="copier">📋 Copier le texte</button></p>
+  {{ with .Params.piece }}
+  {{ $p := index (where (where site.RegularPages "Section" "garde-robe") "File.BaseFileName" .) 0 }}
+  {{ with $p }}<p class="muted">Pièce liée : <a href="{{ .RelPermalink }}">{{ .Title }}</a></p>{{ end }}
+  {{ end }}
+</article>
+<script>
+document.getElementById('copier').addEventListener('click', async () => {
+  const t = document.getElementById('annonce').innerText.trim();
+  await navigator.clipboard.writeText(t);
+  document.getElementById('copier').textContent = '✅ Copié !';
+});
+</script>
+{{ end }}

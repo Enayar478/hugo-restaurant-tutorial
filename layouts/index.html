@@ -1,0 +1,58 @@
+{{ define "main" }}
+{{ $pieces := where .Site.RegularPages "Section" "garde-robe" }}
+{{ $possede := where $pieces "Params.statut" "possede" }}
+{{ $enVente := where $pieces "Params.statut" "en-vente" }}
+{{ $wishlist := where .Site.RegularPages "Section" "wishlist" }}
+{{ $tenues := where .Site.RegularPages "Section" "tenues" }}
+{{ $ventes := where .Site.RegularPages "Section" "ventes" }}
+
+<section class="hero">
+  <h1>Le Vestiaire</h1>
+  <p class="lead">{{ .Site.Params.profil }} · {{ .Site.Params.vibe }}</p>
+  <div class="palette" title="Ma palette Automne Chaud">
+    <span style="background:#C0653B" title="Terracotta"></span>
+    <span style="background:#6B7345" title="Vert olive"></span>
+    <span style="background:#D9A441" title="Moutarde"></span>
+    <span style="background:#B98A5C" title="Camel"></span>
+    <span style="background:#4E342E" title="Chocolat"></span>
+    <span style="background:#2E3A4E" title="Marine"></span>
+    <span style="background:#A6532F" title="Rouille"></span>
+    <span style="background:#F4EDE0;border:1px solid #d8cbb4" title="Écru"></span>
+  </div>
+</section>
+
+<section class="stats">
+  <a class="stat" href="{{ "garde-robe/" | relURL }}"><strong>{{ len $possede }}</strong><span>pièces possédées</span></a>
+  <a class="stat" href="{{ "tenues/" | relURL }}"><strong>{{ len $tenues }}</strong><span>tenues</span></a>
+  <a class="stat" href="{{ "wishlist/" | relURL }}"><strong>{{ len $wishlist }}</strong><span>en wishlist</span></a>
+  <a class="stat" href="{{ "ventes/" | relURL }}"><strong>{{ len $ventes }}</strong><span>annonces</span></a>
+</section>
+
+<section>
+  <h2>Prochains achats</h2>
+  {{ $tri := slice }}
+  {{ range slice "haute" "moyenne" "basse" }}{{ $tri = $tri | append (where $wishlist "Params.priorite" .) }}{{ end }}
+  <div class="cards">
+  {{ range first 4 $tri }}
+    <a class="card" href="{{ .RelPermalink }}">
+      <span class="badge badge-{{ .Params.priorite }}">{{ .Params.priorite }}</span>
+      <h3>{{ .Title }}</h3>
+      <p>{{ .Params.marque }}{{ with .Params.prix }} · {{ . }} €{{ end }}</p>
+    </a>
+  {{ else }}
+    <p>Wishlist vide — ajoute ta première envie avec la skill <code>/wishlist</code>.</p>
+  {{ end }}
+  </div>
+</section>
+
+<section>
+  <h2>En vente</h2>
+  {{ if $enVente }}
+  <div class="cards">
+  {{ range $enVente }}
+    <a class="card" href="{{ .RelPermalink }}"><h3>{{ .Title }}</h3><p>{{ .Params.marque }}</p></a>
+  {{ end }}
+  </div>
+  {{ else }}<p>Rien en vente pour le moment.</p>{{ end }}
+</section>
+{{ end }}

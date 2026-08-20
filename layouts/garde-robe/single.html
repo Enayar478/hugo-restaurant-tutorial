@@ -1,0 +1,28 @@
+{{ define "main" }}
+<article class="detail">
+  <p><a href="{{ "garde-robe/" | relURL }}">← Garde-robe</a></p>
+  <h1>{{ .Title }}</h1>
+  <p><span class="badge badge-{{ .Params.statut }}">{{ .Params.statut | humanize }}</span></p>
+  {{ with .Params.image }}<img class="photo" src="{{ . }}" alt="{{ $.Title }}">{{ end }}
+  <dl class="specs">
+    {{ with .Params.categorie }}<dt>Catégorie</dt><dd>{{ . | humanize }}</dd>{{ end }}
+    {{ with .Params.marque }}<dt>Marque</dt><dd>{{ . }}</dd>{{ end }}
+    {{ with .Params.couleur }}<dt>Couleur</dt><dd>{{ . }}</dd>{{ end }}
+    {{ with .Params.taille }}<dt>Taille</dt><dd>{{ . }}</dd>{{ end }}
+    {{ with .Params.saison }}<dt>Saison</dt><dd>{{ delimit . ", " }}</dd>{{ end }}
+    {{ with .Params.prix }}<dt>Prix</dt><dd>{{ . }} €</dd>{{ end }}
+    {{ with .Params.date_achat }}<dt>Acheté le</dt><dd>{{ dateFormat "02/01/2006" . }}</dd>{{ end }}
+    {{ with .Params.tags }}<dt>Style</dt><dd>{{ delimit . ", " }}</dd>{{ end }}
+  </dl>
+  <div class="prose">{{ .Content }}</div>
+
+  {{ $slug := .File.BaseFileName }}
+  {{ $tenues := where .Site.RegularPages "Section" "tenues" }}
+  {{ $avec := slice }}
+  {{ range $tenues }}{{ if in (.Params.pieces | default slice) $slug }}{{ $avec = $avec | append . }}{{ end }}{{ end }}
+  {{ if $avec }}
+  <h2>Portée dans</h2>
+  <ul>{{ range $avec }}<li><a href="{{ .RelPermalink }}">{{ .Title }}</a></li>{{ end }}</ul>
+  {{ end }}
+</article>
+{{ end }}

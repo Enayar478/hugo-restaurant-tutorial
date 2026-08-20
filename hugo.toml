@@ -1,0 +1,19 @@
+baseURL = "https://enayar478.github.io/hugo-restaurant-tutorial/"
+languageCode = "fr-fr"
+title = "Le Vestiaire"
+enableRobotsTXT = true
+disableKinds = ["taxonomy", "term", "rss"]
+
+[params]
+  description = "Garde-robe, wishlist, tenues & ventes — profil Automne Chaud, vibe Ivy League / Workwear / Militaire."
+  profil = "Automne Chaud"
+  vibe = "Ivy League / Workwear / Militaire"
+
+[outputs]
+  home = ["HTML", "JSON"]
+
+[markup.goldmark.renderer]
+  unsafe = true
+
+[pagination]
+  pagerSize = 200

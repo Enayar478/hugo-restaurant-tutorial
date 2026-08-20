@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128">
+  <rect width="128" height="128" rx="24" fill="#C0653B"/>
+  <!-- cintre -->
+  <g stroke="#F4EDE0" stroke-width="6" fill="none" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M64 30 a8 8 0 1 1 8 -8"/>
+    <path d="M64 30 v10"/>
+    <path d="M64 40 L18 78 h92 Z"/>
+  </g>
+  <text x="64" y="112" text-anchor="middle" font-family="Georgia, serif" font-size="20" fill="#F4EDE0">VESTIAIRE</text>
+</svg>
