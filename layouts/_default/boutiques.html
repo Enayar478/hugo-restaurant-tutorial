@@ -1,0 +1,25 @@
+{{ define "main" }}
+<h1>Boutiques</h1>
+<p class="lead">Le carnet d'adresses officiel de mon style.</p>
+{{ $grouped := dict }}
+{{ range .Site.Data.boutiques }}
+  {{ $cat := .categorie | default "multi" }}
+  {{ $list := index $grouped $cat | default slice }}
+  {{ $grouped = merge $grouped (dict $cat ($list | append .)) }}
+{{ end }}
+{{ $ordre := slice "vestes-manteaux" "hauts" "pantalons" "chaussures" "montres" "lunettes" "multi" "seconde-main" }}
+{{ range $ordre }}
+  {{ with index $grouped . }}
+  <h2>{{ humanize $ }}</h2>
+  <div class="cards">
+    {{ range . }}
+    <a class="card" href="{{ .url }}" target="_blank" rel="noopener">
+      <h3>{{ .nom }} ↗</h3>
+      {{ with .notes }}<p>{{ . }}</p>{{ end }}
+    </a>
+    {{ end }}
+  </div>
+  {{ end }}
+{{ end }}
+<div class="prose">{{ .Content }}</div>
+{{ end }}

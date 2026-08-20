@@ -1,0 +1,13 @@
+{{ define "main" }}
+<h1>Tenues</h1>
+<p class="lead">Mes associations validées. Pour en composer une nouvelle, direction le <a href="{{ "studio/" | relURL }}">Studio</a>.</p>
+<div class="cards">
+{{ range .Pages }}
+  <a class="card" href="{{ .RelPermalink }}">
+    <h3>{{ .Title }}</h3>
+    <p>{{ with .Params.occasion }}{{ . | humanize }}{{ end }}{{ with .Params.saison }} · {{ delimit . ", " }}{{ end }}</p>
+    <p class="muted">{{ len (.Params.pieces | default slice) }} pièces</p>
+  </a>
+{{ end }}
+</div>
+{{ end }}

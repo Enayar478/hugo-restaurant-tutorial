@@ -1,0 +1,29 @@
+{{ define "main" }}
+<h1>Studio</h1>
+<p class="lead">Compose une tenue avec tes pièces — même en magasin, pour vérifier qu'un futur achat s'accorde avec le reste.</p>
+
+<div id="studio" data-index="{{ "index.json" | relURL }}">
+  <section class="rack">
+    <h2>La tenue en cours <span id="compte" class="muted"></span></h2>
+    <div class="cards" id="selection"><p class="muted" id="vide">Touche des pièces ci-dessous pour les ajouter.</p></div>
+    <div class="rack-actions">
+      <input type="text" id="nom-tenue" placeholder="Nom de la tenue…">
+      <button class="btn" id="sauver">💾 Garder</button>
+      <button class="btn btn-ghost" id="exporter">📄 Export Markdown</button>
+      <button class="btn btn-ghost" id="viderBtn">🗑 Vider</button>
+    </div>
+    <pre id="export" hidden></pre>
+  </section>
+
+  <section id="brouillons-section" hidden>
+    <h2>Tenues gardées sur cet appareil</h2>
+    <div class="cards" id="brouillons"></div>
+  </section>
+
+  <section>
+    <div class="filters"><div class="filter-group" id="cat-filtres"></div></div>
+    <div class="cards" id="inventaire"><p class="muted">Chargement de la garde-robe…</p></div>
+  </section>
+</div>
+<script src="{{ "js/studio.js" | relURL }}"></script>
+{{ end }}

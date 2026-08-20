@@ -1,0 +1,16 @@
+{{- $pieces := where .Site.RegularPages "Section" "garde-robe" -}}
+{{- $out := slice -}}
+{{- range $pieces -}}
+  {{- $out = $out | append (dict
+    "slug" .File.BaseFileName
+    "titre" .Title
+    "categorie" (.Params.categorie | default "autre")
+    "couleur" (.Params.couleur | default "")
+    "marque" (.Params.marque | default "")
+    "saison" (.Params.saison | default slice)
+    "statut" (.Params.statut | default "possede")
+    "image" (.Params.image | default "")
+    "url" .RelPermalink
+  ) -}}
+{{- end -}}
+{{- dict "pieces" $out | jsonify -}}

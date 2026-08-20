@@ -1,0 +1,131 @@
+/* Palette Automne Chaud — pas de noir pur, pas de blanc optique */
+:root {
+  --terracotta: #C0653B;
+  --olive: #6B7345;
+  --moutarde: #D9A441;
+  --camel: #B98A5C;
+  --chocolat: #3E2C22;
+  --marine: #2E3A4E;
+  --rouille: #A6532F;
+  --bordeaux: #6E2B2B;
+  --ecru: #F4EDE0;
+  --ecru-2: #EDE3D0;
+  --ligne: #D8CBB4;
+  --encre: var(--chocolat);
+  --fond: var(--ecru);
+  --carte: #FBF7EE;
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --encre: #EDE3D0;
+    --fond: #2A211B;
+    --carte: #362B23;
+    --ligne: #4E4034;
+  }
+}
+
+* { box-sizing: border-box; }
+body {
+  margin: 0;
+  background: var(--fond);
+  color: var(--encre);
+  font-family: Georgia, 'Times New Roman', serif;
+  line-height: 1.55;
+}
+a { color: var(--rouille); text-decoration: none; }
+a:hover { text-decoration: underline; }
+main { max-width: 960px; margin: 0 auto; padding: 1rem 1rem 3rem; }
+h1, h2, h3 { font-weight: 600; letter-spacing: .01em; }
+h1 { font-size: 1.7rem; }
+h2 { font-size: 1.2rem; margin-top: 2rem; border-bottom: 2px solid var(--ligne); padding-bottom: .3rem; }
+
+.topbar {
+  display: flex; flex-wrap: wrap; align-items: center; gap: .5rem 1rem;
+  padding: .7rem 1rem; background: var(--marine); color: var(--ecru);
+  position: sticky; top: 0; z-index: 10;
+}
+.brand { color: var(--ecru); font-weight: 700; font-size: 1.05rem; }
+.topbar nav { display: flex; flex-wrap: wrap; gap: .2rem .8rem; font-size: .92rem; }
+.topbar nav a { color: var(--ecru-2); }
+
+.hero { text-align: center; padding: 1.5rem 0 .5rem; }
+.hero h1 { margin-bottom: .2rem; }
+.lead { color: var(--camel); font-style: italic; margin-top: .2rem; }
+.palette { display: flex; justify-content: center; gap: .4rem; margin: 1rem 0; }
+.palette span { width: 2rem; height: 2rem; border-radius: 50%; display: inline-block; }
+
+.stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: .7rem; margin: 1rem 0 2rem; }
+.stat {
+  background: var(--carte); border: 1px solid var(--ligne); border-radius: .6rem;
+  padding: .9rem; text-align: center; color: var(--encre);
+}
+.stat strong { display: block; font-size: 1.6rem; color: var(--terracotta); }
+.stat span { font-size: .85rem; }
+.stat:hover { text-decoration: none; border-color: var(--terracotta); }
+
+.cards { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: .8rem; margin: 1rem 0; }
+.card {
+  background: var(--carte); border: 1px solid var(--ligne); border-radius: .6rem;
+  padding: .9rem; color: var(--encre); display: block;
+}
+.card:hover { text-decoration: none; border-color: var(--terracotta); }
+.card h3 { margin: .3rem 0 .2rem; font-size: 1rem; }
+.card p { margin: .2rem 0; font-size: .88rem; color: var(--camel); }
+.card-missing { border-style: dashed; opacity: .7; }
+
+.badge {
+  display: inline-block; font-size: .72rem; padding: .1rem .55rem;
+  border-radius: 1rem; background: var(--ecru-2); color: var(--chocolat);
+  border: 1px solid var(--ligne); margin-right: .3rem;
+  font-family: system-ui, sans-serif; text-transform: capitalize;
+}
+.badge-possede { background: var(--olive); color: var(--ecru); border: 0; }
+.badge-a-acquerir { background: var(--moutarde); color: var(--chocolat); border: 0; }
+.badge-en-vente { background: var(--terracotta); color: var(--ecru); border: 0; }
+.badge-vendu { background: var(--marine); color: var(--ecru); border: 0; }
+.badge-haute { background: var(--bordeaux); color: var(--ecru); border: 0; }
+.badge-moyenne { background: var(--camel); color: var(--ecru); border: 0; }
+.badge-basse { background: var(--ecru-2); }
+.badge-brouillon { background: var(--moutarde); color: var(--chocolat); border: 0; }
+.badge-publie { background: var(--olive); color: var(--ecru); border: 0; }
+.badge-vinted { background: #397C77; color: var(--ecru); border: 0; }
+
+.filters { margin: 1rem 0; display: flex; flex-direction: column; gap: .4rem; }
+.filter-group { display: flex; flex-wrap: wrap; gap: .35rem; }
+.chip {
+  font: inherit; font-size: .82rem; padding: .25rem .8rem; border-radius: 1rem;
+  border: 1px solid var(--ligne); background: var(--carte); color: var(--encre); cursor: pointer;
+}
+.chip.is-active { background: var(--terracotta); color: var(--ecru); border-color: var(--terracotta); }
+
+.btn {
+  font: inherit; display: inline-block; padding: .45rem 1rem; border-radius: .5rem;
+  background: var(--terracotta); color: var(--ecru); border: 0; cursor: pointer;
+}
+.btn:hover { background: var(--rouille); text-decoration: none; }
+.btn-ghost { background: transparent; color: var(--encre); border: 1px solid var(--ligne); }
+
+.detail .photo { max-width: 100%; border-radius: .6rem; margin: .5rem 0; }
+.specs { display: grid; grid-template-columns: max-content 1fr; gap: .2rem 1rem; margin: 1rem 0; }
+.specs dt { color: var(--camel); }
+.specs dd { margin: 0; }
+.muted { color: var(--camel); font-size: .88rem; }
+.hint { background: var(--ecru-2); border-left: 3px solid var(--moutarde); padding: .5rem .8rem; border-radius: 0 .4rem .4rem 0; font-size: .9rem; }
+@media (prefers-color-scheme: dark) { .hint { background: var(--carte); } }
+
+.annonce { background: var(--carte); border: 1px dashed var(--ligne); border-radius: .6rem; padding: 1rem; white-space: pre-line; }
+#export { background: var(--carte); border: 1px solid var(--ligne); border-radius: .6rem; padding: 1rem; overflow-x: auto; font-size: .82rem; }
+
+.rack { background: var(--carte); border: 2px solid var(--camel); border-radius: .8rem; padding: 1rem; margin-bottom: 1.5rem; }
+.rack h2 { margin-top: 0; border: 0; }
+.rack-actions { display: flex; flex-wrap: wrap; gap: .5rem; margin-top: .8rem; }
+.rack-actions input { font: inherit; padding: .4rem .6rem; border: 1px solid var(--ligne); border-radius: .5rem; background: var(--fond); color: var(--encre); flex: 1; min-width: 140px; }
+.card.is-selected { border-color: var(--terracotta); box-shadow: 0 0 0 2px var(--terracotta); }
+
+.swatch { display: inline-block; width: 1em; height: 1em; border-radius: 50%; vertical-align: -.15em; margin-right: .3em; border: 1px solid var(--ligne); }
+.prose table { border-collapse: collapse; width: 100%; overflow-x: auto; display: block; }
+.prose th, .prose td { border: 1px solid var(--ligne); padding: .4rem .6rem; text-align: left; font-size: .9rem; }
+.prose th { background: var(--ecru-2); }
+@media (prefers-color-scheme: dark) { .prose th { background: var(--carte); } }
+
+.footer { text-align: center; padding: 1.5rem; color: var(--camel); font-size: .85rem; border-top: 1px solid var(--ligne); }
