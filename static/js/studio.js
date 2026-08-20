@@ -17,7 +17,7 @@
 
   const bySlug = Object.fromEntries(pieces.map(p => [p.slug, p]));
 
-  function carte(p, selectable) {
+  function carte(p) {
     const el = document.createElement('div');
     el.className = 'card' + (selection.has(p.slug) ? ' is-selected' : '');
     el.style.cursor = 'pointer';
