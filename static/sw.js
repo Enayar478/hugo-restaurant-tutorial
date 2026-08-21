@@ -1,5 +1,5 @@
 /* Service worker : réseau d'abord, cache en secours — le vestiaire reste consultable hors-ligne. */
-const CACHE_VERSION = 'vestiaire-v2';
+const CACHE_VERSION = 'vestiaire-v3';
 
 self.addEventListener('install', (e) => {
   self.skipWaiting();

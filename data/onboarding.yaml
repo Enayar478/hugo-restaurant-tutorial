@@ -1,0 +1,190 @@
+# Données du wizard d'onboarding (/profil/).
+# saisons : les 9 profils colorimétriques que l'algorithme peut attribuer.
+#   roles : mapping utilisé pour colorer la capsule générée (voir capsule plus bas).
+# vibes : les univers stylistiques du vibe check.
+# icones : les références proposées à l'étape style.
+# capsule : le modèle de garde-robe capsule ; `role` est résolu via saisons.<profil>.roles.
+
+saisons:
+  automne-chaud:
+    nom: "Automne Chaud"
+    description: "Tes couleurs sont celles d'octobre : chaudes, terreuses, dorées. Tu rayonnes dans les tons épicés et tu t'éteins dans le froid et le noir."
+    palette:
+      - { nom: "Terracotta", hex: "#C0653B" }
+      - { nom: "Vert olive", hex: "#6B7345" }
+      - { nom: "Moutarde", hex: "#D9A441" }
+      - { nom: "Camel", hex: "#B98A5C" }
+      - { nom: "Rouille", hex: "#A6532F" }
+      - { nom: "Chocolat", hex: "#4E342E" }
+      - { nom: "Marine", hex: "#2E3A4E" }
+      - { nom: "Écru", hex: "#F4EDE0" }
+    interdits: ["Noir pur", "Blanc optique", "Rose fuchsia / tons froids", "Argenté brillant"]
+    metaux: "Or, bronze, laiton — finitions mates"
+    roles: { neutre_fonce: "Marine", neutre_moyen: "Camel", neutre_clair: "Écru", accent_a: "Terracotta", accent_b: "Vert olive", accent_c: "Rouille", cuir: "Marron / cognac" }
+  automne-profond:
+    nom: "Automne Profond"
+    description: "Chaud ET intense : tes couleurs sont riches et profondes comme un tannin. Les teintes délavées t'affadissent, les pastels froids encore plus."
+    palette:
+      - { nom: "Chocolat", hex: "#3E2C22" }
+      - { nom: "Bordeaux", hex: "#6E2B2B" }
+      - { nom: "Vert forêt", hex: "#2F4A34" }
+      - { nom: "Rouille", hex: "#A6532F" }
+      - { nom: "Camel", hex: "#B98A5C" }
+      - { nom: "Moutarde", hex: "#C9992F" }
+      - { nom: "Écru", hex: "#EFE6D4" }
+    interdits: ["Pastels froids", "Blanc optique", "Gris clair", "Argenté brillant"]
+    metaux: "Or vieilli, bronze"
+    roles: { neutre_fonce: "Chocolat", neutre_moyen: "Camel", neutre_clair: "Écru", accent_a: "Bordeaux", accent_b: "Vert forêt", accent_c: "Rouille", cuir: "Marron foncé / bordeaux" }
+  automne-doux:
+    nom: "Automne Doux"
+    description: "Chaud mais tamisé : tes couleurs sont poudrées, sourdes, jamais criardes. Le contraste violent (noir/blanc) te durcit."
+    palette:
+      - { nom: "Taupe", hex: "#8A7A66" }
+      - { nom: "Vert sauge", hex: "#8A9B7C" }
+      - { nom: "Pêche douce", hex: "#D9A98F" }
+      - { nom: "Kaki doux", hex: "#7C7A5A" }
+      - { nom: "Camel clair", hex: "#C4A277" }
+      - { nom: "Marine doux", hex: "#3E4A5C" }
+      - { nom: "Écru", hex: "#F1E9D8" }
+    interdits: ["Noir pur", "Couleurs néon / saturées", "Blanc optique"]
+    metaux: "Or mat, laiton brossé"
+    roles: { neutre_fonce: "Marine doux", neutre_moyen: "Taupe", neutre_clair: "Écru", accent_a: "Pêche douce", accent_b: "Vert sauge", accent_c: "Kaki doux", cuir: "Marron taupe" }
+  printemps-chaud:
+    nom: "Printemps Chaud"
+    description: "Chaud et lumineux : tes couleurs sont vives et ensoleillées. Les teintes lourdes et sombres t'éteignent."
+    palette:
+      - { nom: "Ivoire", hex: "#F6EFDE" }
+      - { nom: "Camel doré", hex: "#C9A268" }
+      - { nom: "Corail", hex: "#E8704F" }
+      - { nom: "Vert prairie", hex: "#63A05F" }
+      - { nom: "Turquoise", hex: "#46A5A0" }
+      - { nom: "Denim chaud", hex: "#5C7FA8" }
+    interdits: ["Noir", "Gris anthracite", "Bordeaux lourd"]
+    metaux: "Or brillant"
+    roles: { neutre_fonce: "Denim chaud", neutre_moyen: "Camel doré", neutre_clair: "Ivoire", accent_a: "Corail", accent_b: "Vert prairie", accent_c: "Turquoise", cuir: "Cognac clair" }
+  printemps-clair:
+    nom: "Printemps Clair"
+    description: "Clair et frais-chaud : tes couleurs sont légères, délicates, printanières. Le sombre et le lourd écrasent ton contraste naturel."
+    palette:
+      - { nom: "Ivoire", hex: "#F7F0E0" }
+      - { nom: "Bleu ciel", hex: "#7FB3D6" }
+      - { nom: "Corail clair", hex: "#EF8E70" }
+      - { nom: "Vert menthe", hex: "#7FC9A6" }
+      - { nom: "Jaune doux", hex: "#E8C95C" }
+      - { nom: "Beige rosé", hex: "#D9BFA6" }
+    interdits: ["Noir", "Couleurs sombres lourdes", "Kaki terne"]
+    metaux: "Or clair, or rose"
+    roles: { neutre_fonce: "Bleu ciel (foncé)", neutre_moyen: "Beige rosé", neutre_clair: "Ivoire", accent_a: "Corail clair", accent_b: "Vert menthe", accent_c: "Jaune doux", cuir: "Cognac clair" }
+  hiver-profond:
+    nom: "Hiver Profond"
+    description: "Froid et intense : le contraste est ton allié. Le noir, le blanc pur et les couleurs franches te vont — les tons terreux te jaunissent."
+    palette:
+      - { nom: "Noir", hex: "#1C1C1E" }
+      - { nom: "Blanc pur", hex: "#FAFAFA" }
+      - { nom: "Rouge franc", hex: "#B01E2E" }
+      - { nom: "Bleu roi", hex: "#1F3A93" }
+      - { nom: "Émeraude", hex: "#0E6B4F" }
+      - { nom: "Anthracite", hex: "#3A3A3E" }
+    interdits: ["Beige / camel terne", "Terracotta", "Moutarde"]
+    metaux: "Argent, platine, acier"
+    roles: { neutre_fonce: "Noir", neutre_moyen: "Anthracite", neutre_clair: "Blanc pur", accent_a: "Rouge franc", accent_b: "Bleu roi", accent_c: "Émeraude", cuir: "Noir" }
+  hiver-froid:
+    nom: "Hiver Froid"
+    description: "Froid et net : les teintes glacées et saturées t'illuminent. Tout ce qui est chaud et terreux te ternit."
+    palette:
+      - { nom: "Noir", hex: "#1E1E22" }
+      - { nom: "Blanc", hex: "#F8F8FA" }
+      - { nom: "Gris anthracite", hex: "#3C4048" }
+      - { nom: "Bleu glacier", hex: "#7FA8C9" }
+      - { nom: "Fuchsia", hex: "#B0356E" }
+      - { nom: "Violet", hex: "#5B3A8E" }
+    interdits: ["Terracotta", "Moutarde", "Kaki chaud"]
+    metaux: "Argent, acier brossé"
+    roles: { neutre_fonce: "Noir", neutre_moyen: "Gris anthracite", neutre_clair: "Blanc", accent_a: "Bleu glacier", accent_b: "Violet", accent_c: "Fuchsia", cuir: "Noir" }
+  ete-clair:
+    nom: "Été Clair"
+    description: "Froid et léger : tes couleurs sont douces, poudrées, presque pastel. Le noir dur casse ton harmonie naturelle."
+    palette:
+      - { nom: "Gris perle", hex: "#C9CDD4" }
+      - { nom: "Bleu lavande", hex: "#8FA3C9" }
+      - { nom: "Rose poudré", hex: "#D9A8B3" }
+      - { nom: "Vert d'eau", hex: "#A8C9BC" }
+      - { nom: "Écru rosé", hex: "#F2EAE4" }
+      - { nom: "Denim doux", hex: "#6C87A8" }
+    interdits: ["Noir dur", "Orange vif", "Moutarde"]
+    metaux: "Argent mat, or rose"
+    roles: { neutre_fonce: "Denim doux", neutre_moyen: "Gris perle", neutre_clair: "Écru rosé", accent_a: "Bleu lavande", accent_b: "Vert d'eau", accent_c: "Rose poudré", cuir: "Gris taupe" }
+  ete-doux:
+    nom: "Été Doux"
+    description: "Froid et tamisé : tes couleurs sont fumées, jamais brillantes. Les saturations vives et le noir te volent la vedette."
+    palette:
+      - { nom: "Gris bleu", hex: "#7C8A9B" }
+      - { nom: "Bleu ardoise", hex: "#5C7089" }
+      - { nom: "Mauve", hex: "#9B7C93" }
+      - { nom: "Vieux rose", hex: "#B98A93" }
+      - { nom: "Sauge froide", hex: "#8AA093" }
+      - { nom: "Écru gris", hex: "#EDE8E0" }
+    interdits: ["Noir", "Couleurs saturées vives", "Orange"]
+    metaux: "Argent brossé"
+    roles: { neutre_fonce: "Bleu ardoise", neutre_moyen: "Gris bleu", neutre_clair: "Écru gris", accent_a: "Sauge froide", accent_b: "Mauve", accent_c: "Vieux rose", cuir: "Gris foncé" }
+
+vibes:
+  - id: ivy
+    nom: "Ivy League"
+    emoji: "🎓"
+    description: "Blazers, Oxford, loafers — l'élégance décontractée des campus américains des années 60."
+    signatures: ["Blazer croisé", "Chemise Oxford boutonnée", "Penny loafers", "Chino taille haute"]
+  - id: workwear
+    nom: "Workwear"
+    emoji: "🔨"
+    description: "Toiles épaisses, coupes robustes — le vêtement de travail américain anobli."
+    signatures: ["Veste de travail en toile", "Fatigue pant", "Boots cuir gras", "T-shirt épais"]
+  - id: militaire
+    nom: "Militaire"
+    emoji: "🎖"
+    description: "Surplus, kaki, fonctionnel — l'héritage des uniformes repensé au quotidien."
+    signatures: ["Field jacket M-65", "Fatigue pant", "Boots", "Chemise chino militaire"]
+  - id: riviera
+    nom: "Riviera Sartoriale"
+    emoji: "🛥"
+    description: "Lin, maille, mocassins — l'élégance méditerranéenne des années Delon."
+    signatures: ["Polo en maille tricot", "Pantalon Gurkha", "Mocassins ou mules", "Lin été"]
+  - id: dandy
+    nom: "Dandy Rétro"
+    emoji: "🎩"
+    description: "Velours, tassel loafers, montres dorées — le vintage assumé avec panache."
+    signatures: ["Tassel loafers", "Chemise col cubain", "Velours côtelé", "Montre rétro"]
+  - id: minimal
+    nom: "Minimaliste"
+    emoji: "◽"
+    description: "Lignes nettes, palette resserrée, zéro logo — la qualité qui se voit sans se montrer."
+    signatures: ["T-shirt parfait", "Chino net", "Sneakers cuir sobres", "Manteau droit"]
+
+icones:
+  - { nom: "Paul Newman", vibe: ivy }
+  - { nom: "Robert Redford", vibe: ivy }
+  - { nom: "Steve McQueen", vibe: workwear }
+  - { nom: "Jean-Paul Belmondo", vibe: workwear }
+  - { nom: "Alain Delon", vibe: riviera }
+  - { nom: "Marcello Mastroianni", vibe: riviera }
+  - { nom: "Sean Connery", vibe: dandy }
+  - { nom: "Gianni Agnelli", vibe: dandy }
+  - { nom: "Ryan Gosling (Drive)", vibe: minimal }
+  - { nom: "Daniel Craig", vibe: minimal }
+
+capsule:
+  - { nom: "Blazer en laine (croisé ou simple)", categorie: "Vestes / Manteaux", role: neutre_fonce, matiere: "Laine", marques: "Suitsupply, Boggi", budget: "250 – 400 €" }
+  - { nom: "Veste casual en toile épaisse", categorie: "Vestes / Manteaux", role: neutre_moyen, matiere: "Coton canvas / moleskine", marques: "Champ de Manœuvres, Octobre, Drapeau Noir", budget: "130 – 200 €" }
+  - { nom: "Manteau long d'hiver en laine", categorie: "Vestes / Manteaux", role: neutre_fonce, matiere: "Laine", marques: "Suitsupply, Boggi", budget: "250 – 400 €" }
+  - { nom: "3 t-shirts épais (coton Supima)", categorie: "Hauts", role: [neutre_clair, accent_a, accent_b], matiere: "Coton lourd", marques: "Asphalte, Loom", budget: "35 – 40 €/pc" }
+  - { nom: "2 chemises Oxford (unie + rayée)", categorie: "Hauts", role: neutre_clair, matiere: "Coton Oxford", marques: "Kamakura, Drapeau Noir", budget: "90 – 120 €/pc" }
+  - { nom: "2 pulls / gilets col V", categorie: "Hauts", role: [accent_c, accent_b], matiere: "Laine mérinos ou lambswool", marques: "Paris Yorker, Asphalte", budget: "70 – 120 €/pc" }
+  - { nom: "Polo en maille tricot (été)", categorie: "Hauts", role: neutre_clair, matiere: "Coton ou lin tricoté", marques: "Scott Fraser, Berg & Berg", budget: "130 – 180 €" }
+  - { nom: "Chemise casual manches courtes (été)", categorie: "Hauts", role: accent_a, matiere: "Lin ou flanelle légère", marques: "Portuguese Flannel", budget: "90 – 120 €" }
+  - { nom: "Pantalon signature de ta vibe", categorie: "Pantalons", role: accent_b, matiere: "Selon vibe (ripstop, velours…)", marques: "Bronson, Stan Ray, Casatlantic", budget: "60 – 160 €" }
+  - { nom: "Pantalon en velours côtelé taille haute", categorie: "Pantalons", role: neutre_moyen, matiere: "Velours côtelé", marques: "Casatlantic, Spier & Mackay", budget: "130 – 160 €" }
+  - { nom: "Chino ample taille haute", categorie: "Pantalons", role: neutre_fonce, matiere: "Coton twill", marques: "Casatlantic", budget: "150 – 170 €" }
+  - { nom: "Pantalon ou short en lin (été)", categorie: "Pantalons", role: neutre_clair, matiere: "Lin", marques: "Scott Fraser", budget: "150 – 250 €" }
+  - { nom: "Boots robustes en cuir", categorie: "Chaussures", role: cuir, matiere: "Cuir pleine fleur", marques: "Red Wing, Paraboot", budget: "~350 €" }
+  - { nom: "Loafers en daim", categorie: "Chaussures", role: cuir, matiere: "Daim", marques: "Meermin, Velasca", budget: "~200 €" }
+  - { nom: "Troisième paire selon ta vibe", categorie: "Chaussures", role: cuir, matiere: "Cuir lisse ou sneaker sobre", marques: "Septième Largeur, CQP", budget: "150 – 345 €" }

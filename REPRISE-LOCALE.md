@@ -54,7 +54,22 @@ Issues du brainstorming personal-shopper (user stories complètes en section 6) 
 
 Les user stories complètes (format « En tant que… », priorités MoSCoW, implications images) sont dans la conversation de brainstorming — les reprendre au besoin en relançant l'agent : « relis REPRISE-LOCALE.md et détaille les US de la phase 3 ».
 
-## 7. Rappels d'architecture (pour ne pas casser)
+## 7. Onboarding — ce qui reste inaccessible depuis le cloud
+
+Le parcours `/profil/` (auto-diagnostic 4 saisons, morpho, vibe check, capsule générée, exports Markdown + prompt IA) est **entièrement fonctionnel en statique**. Ce qui suit demande tes accès/tokens :
+
+- [ ] **(Optionnel) Repo « template »** pour le partage : `Settings → General → cocher « Template repository »`. Les proches créent alors leur Vestiaire en un clic (« Use this template ») au lieu d'un fork. Le bouton final du wizard pointe sur `/fork` — le mettre à jour vers `/generate` si tu actives le template.
+- [ ] **Analyse selfie par IA (US 1.1 + 2.1 de Gemini)** — impossible en statique pur : exposer une clé API dans une page publique = clé volée en quelques heures. Deux options quand tu voudras la vraie version :
+  1. **Sans backend (recommandé pour commencer)** : le wizard génère déjà le « prompt IA » complet (auto-diagnostic + consignes selfie) → l'utilisateur le colle dans sa propre session Claude/Gemini. Zéro infra, zéro coût pour toi, déjà livré.
+  2. **Avec backend (Vercel)** : migrer l'hébergement vers Vercel (le repo est un site Hugo, Vercel le build nativement) + une serverless function `/api/analyse` qui reçoit le selfie (base64) + les réponses du wizard, appelle l'API Anthropic côté serveur (clé en variable d'environnement Vercel, jamais dans le client) et renvoie le JSON profil. Points techniques pour la session locale :
+     - SDK : `@anthropic-ai/sdk`, modèle **`claude-opus-5`** (multimodal : bloc `{type: "image", source: {type: "base64", media_type: "image/jpeg", data: …}}` dans le message user).
+     - Sortie structurée : utiliser `output_config: {format: …}` (JSON strict) plutôt que « réponds en JSON » dans le prompt.
+     - Le prompt système est déjà rédigé : c'est `exportPromptIA()` dans `static/js/onboarding.js`, à transposer côté serveur (rôle système « Expert Senior en Personal Shopping Masculin… », sortie : saison + palette HEX + interdits + règles morpho + capsule 15-20 pièces + accessoires).
+     - Prévoir un rate-limit basique sur la function (sinon ta clé paie l'internet entier).
+- [ ] **Caméra guidée avec masque ovale (US 1.1)** : faisable en statique (`getUserMedia` + overlay), mais ne sert à rien tant que l'analyse IA n'existe pas — la traiter avec l'option 2 ci-dessus.
+- [ ] **Multi-profils / comptes** : hors modèle statique. Le choix assumé : 1 personne = 1 navigateur (localStorage) pour tester, 1 personne = 1 repo pour adopter. Ne pas partir sur un backend d'auth sans y avoir vraiment réfléchi.
+
+## 8. Rappels d'architecture (pour ne pas casser)
 
 - Résolution d'image : front matter `image` → convention `static/img/…/<slug>.jpg` → silhouette teintée (`data/couleurs.yaml`). Nouvelle couleur = nouvelle entrée dans ce fichier.
 - `index.json` embarque le HTML des vignettes : toute évolution du partial `vignette.html` profite automatiquement au Studio.
