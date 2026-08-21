@@ -103,6 +103,8 @@ h2 { font-size: 1.2rem; margin-top: 2rem; border-bottom: 2px solid var(--ligne);
   background: var(--terracotta); color: var(--ecru); border: 0; cursor: pointer;
 }
 .btn:hover { background: var(--rouille); text-decoration: none; }
+/* `display` d'auteur l'emporte sur le `hidden` du navigateur : à rétablir. */
+[hidden] { display: none !important; }
 .btn-ghost { background: transparent; color: var(--encre); border: 1px solid var(--ligne); }
 
 .detail .photo { max-width: 100%; border-radius: .6rem; margin: .5rem 0; }
@@ -186,3 +188,57 @@ h2 { font-size: 1.2rem; margin-top: 2rem; border-bottom: 2px solid var(--ligne);
 .pastille-rond { display: block; width: 3.2rem; height: 3.2rem; border-radius: 50%; border: 1px solid var(--ligne); margin: 0 auto .25rem; }
 .pastille-nom { font-size: .75rem; }
 .pastille:hover .pastille-rond { outline: 2px solid var(--terracotta); }
+
+/* Capture visuelle : cadre caméra + masque ovale + checklist */
+.cadre-camera {
+  position: relative; aspect-ratio: 3 / 4; max-width: 340px; margin: 1rem auto;
+  background: var(--ecru-2); border-radius: .8rem; overflow: hidden;
+  display: flex; align-items: center; justify-content: center;
+}
+@media (prefers-color-scheme: dark) { .cadre-camera { background: #2E2620; } }
+.cadre-camera video, .cadre-camera img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+.cadre-camera video { transform: scaleX(-1); }
+.masque-ovale {
+  position: absolute; left: 50%; top: 46%; transform: translate(-50%, -50%);
+  width: 62%; aspect-ratio: 3 / 4; border: 3px dashed var(--terracotta);
+  border-radius: 50%; pointer-events: none;
+  box-shadow: 0 0 0 100vmax rgba(62, 44, 34, .28);
+}
+.masque-ovale.masque-ok { border-style: solid; border-color: var(--olive); }
+.cadre-camera .muted { position: relative; padding: 1rem; text-align: center; }
+.checklist { display: flex; flex-direction: column; gap: .45rem; margin: 1rem 0; }
+.checklist label { display: flex; align-items: center; gap: .5rem; font-size: .92rem; cursor: pointer; }
+.checklist input { width: 1.1rem; height: 1.1rem; accent-color: var(--terracotta); }
+.champ {
+  font: inherit; padding: .5rem .7rem; border: 1px solid var(--ligne); border-radius: .5rem;
+  background: var(--carte); color: var(--encre); width: 100%; max-width: 220px;
+}
+
+/* Quiz visuel d'affinités */
+.tinder-carte {
+  background: var(--carte); border: 1px solid var(--ligne); border-radius: 1rem;
+  padding: 1.6rem 1.2rem; text-align: center; margin: 1.2rem 0;
+  box-shadow: 0 6px 20px rgba(62, 44, 34, .09);
+}
+.tinder-carte h2 { border: 0; margin: .3rem 0; }
+.tinder-emoji { font-size: 3.4rem; line-height: 1; }
+.tinder-actions { display: flex; gap: .8rem; justify-content: center; }
+.tinder-actions .btn { flex: 1; max-width: 200px; text-align: center; }
+
+/* Écran d'analyse */
+.analyse-attente { text-align: center; padding: 2.5rem 1rem; }
+.analyse-attente h2 { border: 0; }
+.analyse-rond {
+  width: 3.4rem; height: 3.4rem; margin: 0 auto 1.2rem; border-radius: 50%;
+  border: 4px solid var(--ecru-2); border-top-color: var(--terracotta);
+  animation: tourne 1s linear infinite;
+}
+@keyframes tourne { to { transform: rotate(360deg); } }
+@media (prefers-reduced-motion: reduce) { .analyse-rond { animation-duration: 3s; } }
+
+/* Studio : tester une pièce candidate (jamais committée) */
+.candidate { border-style: dashed !important; }
+.candidate .vignette { outline: 2px dashed var(--moutarde); outline-offset: -2px; }
+.verdict { border-radius: .6rem; padding: .7rem 1rem; margin: .8rem 0; font-size: .92rem; }
+.verdict-ok { background: rgba(107, 115, 69, .14); border-left: 3px solid var(--olive); }
+.verdict-non { background: rgba(192, 101, 59, .14); border-left: 3px solid var(--terracotta); }

@@ -99,18 +99,20 @@ Liste d'objets `{ nom, url, categorie, notes }`. Catégories : vestes-manteaux, 
 
 ## Onboarding (`/profil/`)
 
-Le parcours personal shopper digitalisé, 100 % client-side (aucun appel API) : auto-diagnostic colorimétrique (méthode des 4 saisons — veines, bijoux, soleil, cheveux, yeux, peau), morphologie, vibe check, puis fiche profil + capsule générée.
+Le parcours personal shopper complet, en 8 écrans (`static/js/onboarding.js`, layout `layouts/_default/onboarding.html`) :
 
-- Données : `data/onboarding.yaml` (9 profils saisons avec palettes HEX/interdits/`roles`, vibes, icônes, modèle de capsule). La capsule référence des `roles` (`neutre_fonce`, `accent_a`…) résolus par saison — c'est ce qui rend la même capsule multi-saisons.
-- Logique : `static/js/onboarding.js` (scoring chaleur/profondeur → saison, règles morpho, exports). Profil sauvé dans `localStorage` (`vestiaire-profil`) — par appareil, pas de compte.
-- Sorties : profil Markdown à copier, et « prompt IA » complet à coller dans une session Claude/Gemini avec un selfie pour affiner (l'analyse photo par IA n'existe pas dans l'app statique — voir REPRISE-LOCALE.md pour la version backend).
-- Partage : une personne de l'entourage fait le parcours sur le site, puis forke le repo pour créer son propre Vestiaire.
+1. Intro · 2. **Capture visuelle** : caméra avec masque ovale (`getUserMedia`), checklist bloquante (lumière du jour, sans filtre, fond neutre, sans lunettes teintées), ou upload JPG/PNG/WEBP · 3. **Précisions manuelles optionnelles** (yeux, cheveux, soleil, veines, bijoux) · 4. **Morphologie** (taille, silhouette, complexes) · 5. **Quiz de style** carte par carte (❤️ / ✖️) · 6. **Icônes de référence** · 7. **Contexte de vie + budget mensuel** · 8. **Analyse** puis **fiche profil + capsule**.
+
+- **L'analyse passe par un backend** : POST du payload (photo base64 + toutes les réponses) vers `site.Params.apiUrl` (`hugo.toml`). La fiche affichée est rendue **uniquement depuis le JSON de réponse** — brancher le backend = renseigner l'URL, aucune modification de front.
+- **`apiUrl` vide = mode démo** : une estimation locale (`estimationDemo()`) produit le même format de réponse, clairement étiqueté « mode démo » dans l'UI, pour tester le parcours de bout en bout. Le contrat d'API exact (payload + réponse) est dans `REPRISE-LOCALE.md`.
+- Données de référence : `data/onboarding.yaml` — 9 profils saisons (palettes HEX, interdits, métaux, `roles`), vibes et leurs signatures, icônes, modèle de capsule avec marques/URLs/budgets. Les `roles` (`neutre_fonce`, `accent_a`…) permettent de recolorer la même capsule selon la saison.
+- Profil sauvé dans `localStorage` (`vestiaire-profil`) : réponses + résultat, **jamais la photo**.
 
 ## Layouts & JS
 
 - `layouts/` : templates par section ; `layouts/index.json` génère `index.json` (l'inventaire consommé par le Studio).
 - `static/css/main.css` : tout le style, variables CSS palette Automne en tête de fichier.
-- `static/js/studio.js` : le composeur de tenues en planche visuelle — slots par catégorie (1 veste, 2 hauts, 1 pantalon, 1 chaussures, accessoires illimités, remplacement de la plus ancienne), brouillons localStorage, export front matter.
+- `static/js/studio.js` : le composeur de tenues en planche visuelle — slots par catégorie (1 veste, 2 hauts, 1 pantalon, 1 chaussures, accessoires illimités, remplacement de la plus ancienne), brouillons localStorage, export front matter. Inclut le **test de pièce candidate** (photo prise en magasin ou lien produit) : la pièce entre dans la planche en pointillés, la règle des 3 tenues rend son verdict, et elle n'est ni sauvegardée ni exportée.
 - PWA : `static/manifest.webmanifest` + `static/sw.js` (garder `CACHE_VERSION` incrémenté à chaque grosse évolution du shell).
 
 ## Agent & skills

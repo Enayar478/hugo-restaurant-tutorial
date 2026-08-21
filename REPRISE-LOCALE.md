@@ -58,16 +58,78 @@ Les user stories complètes (format « En tant que… », priorités MoSCoW, imp
 
 Le parcours `/profil/` (auto-diagnostic 4 saisons, morpho, vibe check, capsule générée, exports Markdown + prompt IA) est **entièrement fonctionnel en statique**. Ce qui suit demande tes accès/tokens :
 
-- [ ] **(Optionnel) Repo « template »** pour le partage : `Settings → General → cocher « Template repository »`. Les proches créent alors leur Vestiaire en un clic (« Use this template ») au lieu d'un fork. Le bouton final du wizard pointe sur `/fork` — le mettre à jour vers `/generate` si tu actives le template.
-- [ ] **Analyse selfie par IA (US 1.1 + 2.1 de Gemini)** — impossible en statique pur : exposer une clé API dans une page publique = clé volée en quelques heures. Deux options quand tu voudras la vraie version :
-  1. **Sans backend (recommandé pour commencer)** : le wizard génère déjà le « prompt IA » complet (auto-diagnostic + consignes selfie) → l'utilisateur le colle dans sa propre session Claude/Gemini. Zéro infra, zéro coût pour toi, déjà livré.
-  2. **Avec backend (Vercel)** : migrer l'hébergement vers Vercel (le repo est un site Hugo, Vercel le build nativement) + une serverless function `/api/analyse` qui reçoit le selfie (base64) + les réponses du wizard, appelle l'API Anthropic côté serveur (clé en variable d'environnement Vercel, jamais dans le client) et renvoie le JSON profil. Points techniques pour la session locale :
-     - SDK : `@anthropic-ai/sdk`, modèle **`claude-opus-5`** (multimodal : bloc `{type: "image", source: {type: "base64", media_type: "image/jpeg", data: …}}` dans le message user).
-     - Sortie structurée : utiliser `output_config: {format: …}` (JSON strict) plutôt que « réponds en JSON » dans le prompt.
-     - Le prompt système est déjà rédigé : c'est `exportPromptIA()` dans `static/js/onboarding.js`, à transposer côté serveur (rôle système « Expert Senior en Personal Shopping Masculin… », sortie : saison + palette HEX + interdits + règles morpho + capsule 15-20 pièces + accessoires).
-     - Prévoir un rate-limit basique sur la function (sinon ta clé paie l'internet entier).
-- [ ] **Caméra guidée avec masque ovale (US 1.1)** : faisable en statique (`getUserMedia` + overlay), mais ne sert à rien tant que l'analyse IA n'existe pas — la traiter avec l'option 2 ci-dessus.
-- [ ] **Multi-profils / comptes** : hors modèle statique. Le choix assumé : 1 personne = 1 navigateur (localStorage) pour tester, 1 personne = 1 repo pour adopter. Ne pas partir sur un backend d'auth sans y avoir vraiment réfléchi.
+**Toutes les vues du parcours sont livrées et fonctionnelles** (caméra guidée + masque ovale + checklist, upload, précisions, morphologie, quiz de style, icônes, contexte/budget, écran d'analyse, fiche profil, capsule avec liens marques, test de pièce au Studio). Il ne reste qu'à **brancher le backend d'analyse** : c'est un seul endpoint, et un seul champ de configuration.
+
+### Le branchement — 1 ligne dans `hugo.toml`
+
+```toml
+[params]
+  apiUrl = "https://ton-app.vercel.app/api/analyse"   # vide = mode démo
+```
+
+Tant que `apiUrl` est vide, le parcours tourne en **mode démo** (estimation locale, étiquetée comme telle dans l'UI) : tout est testable de bout en bout. Dès que l'URL est renseignée, le front POSTe le vrai payload et n'affiche plus que ce que le backend renvoie — **aucune ligne de front à modifier**.
+
+### Contrat d'API (à respecter côté backend)
+
+**Requête** — `POST {apiUrl}`, `Content-Type: application/json` :
+
+```jsonc
+{
+  "photo_base64": "data:image/jpeg;base64,…",   // le selfie (peut être null si l'utilisateur a tout passé)
+  "precisions":   { "yeux": "Noisette / vert doré", "cheveux": "…", "soleil": "…", "veines": "…", "bijoux": "…" },
+  "morphologie":  { "taille_cm": "178", "silhouette": "Épaules larges / carrure athlétique", "complexes": ["Ventre"] },
+  "vibes":        { "aimees": ["ivy", "workwear"], "passees": ["techwear"] },
+  "icones":       ["Paul Newman", "Steve McQueen"],
+  "contexte":     "Casual pro",
+  "sorties":      "Quelques fois par mois",
+  "budget_mensuel": 250
+}
+```
+
+**Réponse** — JSON strict, exactement cette forme (c'est ce que `ecranResultat()` sait rendre) :
+
+```jsonc
+{
+  "saison": {
+    "nom": "Automne Chaud",
+    "description": "…",
+    "palette":   [{ "nom": "Terracotta", "hex": "#C0653B" }],   // 5 à 8 entrées
+    "interdits": ["Noir pur", "Blanc optique", "Argenté brillant"],  // exactement 3
+    "metaux":    "Or, bronze, laiton — finitions mates"
+  },
+  "regles_morpho":    ["Coupes amples pour équilibrer la carrure…"],
+  "vibes":            ["Ivy League", "Workwear"],
+  "pieces_signature": ["🎓 Blazer croisé", "🔨 Fatigue pant"],
+  "capsule": [{
+    "nom": "Blazer en laine croisé",
+    "categorie": "Vestes / Manteaux",         // sert au groupage de l'affichage
+    "saison_portee": "toute l'année",         // "hiver" | "été" | "toute l'année"
+    "couleur": "Marine",
+    "matiere": "Laine",
+    "marques": [{ "nom": "Suitsupply", "url": "https://suitsupply.com" }],
+    "budget": "250 – 400 €"
+  }],                                          // 15 à 20 pièces
+  "accessoires": "<p>Montres : …</p>",         // HTML libre, ou null
+  "commentaire": null                          // texte affiché en bas, ou null
+}
+```
+
+En cas d'erreur : renvoyer un statut HTTP ≠ 2xx — le front affiche un écran d'erreur avec bouton « Réessayer ».
+
+### Notes d'implémentation backend
+
+- **Vercel** build le site Hugo nativement ; la function va dans `api/analyse.js` (ou `.ts`).
+- SDK `@anthropic-ai/sdk`, modèle **`claude-opus-5`** — multimodal : le selfie passe en bloc `{ type: "image", source: { type: "base64", media_type: "image/jpeg", data } }` dans le message user (retirer le préfixe `data:image/jpeg;base64,` de la chaîne avant de l'envoyer).
+- **Sortie structurée** : utiliser `output_config: { format: … }` avec le JSON Schema du contrat ci-dessus, plutôt que demander « réponds en JSON » dans le prompt.
+- Clé API en variable d'environnement Vercel — **jamais** dans le client.
+- Prompt système : « Expert senior en personal shopping masculin, colorimétrie des 4 saisons et architecture de garde-robe capsule. » Lui passer le payload complet ; insister sur : capsule **adaptée aux vibes aimées** (un rockeur ne reçoit pas de blazer Ivy), au contexte, au budget mensuel, et sur des marques réelles avec URLs valides.
+- `data/onboarding.yaml` reste utile comme **référentiel** (les 9 saisons avec palettes HEX, les vibes et leurs signatures) : à passer au modèle comme base de vérité, ou à garder juste pour le mode démo.
+- Prévoir un rate-limit basique sur la function (sinon ta clé paie l'internet entier).
+
+### Autres points à traiter en local
+
+- [ ] **(Optionnel) Repo « template »** pour le partage : `Settings → General → cocher « Template repository »` — les proches créent leur Vestiaire en un clic.
+- [ ] **Stockage du profil** : aujourd'hui `localStorage` (1 personne = 1 navigateur), la photo n'est jamais persistée. Si tu veux des comptes multi-appareils, c'est une décision d'architecture à prendre ensemble — ne rien improviser.
 
 ## 8. Rappels d'architecture (pour ne pas casser)
 

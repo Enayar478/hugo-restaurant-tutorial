@@ -7,6 +7,9 @@ disableKinds = ["taxonomy", "term", "rss"]
 [params]
   description = "Garde-robe, wishlist, tenues & ventes — profil Automne Chaud, vibe Ivy League / Workwear / Militaire."
   repoUrl = "https://github.com/Enayar478/hugo-restaurant-tutorial"
+  # Endpoint du backend d'analyse (US 2.1). Vide = mode démo (estimation locale).
+  # À renseigner au branchement du backend (ex. "https://mon-app.vercel.app/api/analyse").
+  apiUrl = ""
   profil = "Automne Chaud"
   vibe = "Ivy League / Workwear / Militaire"
 
