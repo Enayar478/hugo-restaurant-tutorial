@@ -1,0 +1,11 @@
+{{ define "main" }}
+<div id="onboarding" class="onboarding">
+  <div class="wizard-progress"><div class="wizard-barre" id="barre"></div></div>
+  <div id="wizard"></div>
+</div>
+<script>
+window.ONBOARDING_DATA = {{ site.Data.onboarding | jsonify | safeJS }};
+window.VESTIAIRE_REPO = {{ site.Params.repoUrl | jsonify | safeJS }};
+</script>
+<script src="{{ "js/onboarding.js" | relURL }}"></script>
+{{ end }}

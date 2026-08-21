@@ -162,3 +162,27 @@ h2 { font-size: 1.2rem; margin-top: 2rem; border-bottom: 2px solid var(--ligne);
 @media (prefers-color-scheme: dark) { .prose th { background: var(--carte); } }
 
 .footer { text-align: center; padding: 1.5rem; color: var(--camel); font-size: .85rem; border-top: 1px solid var(--ligne); }
+
+/* ── Onboarding : le wizard de création de profil ── */
+.onboarding { max-width: 640px; margin: 0 auto; }
+.wizard-progress { height: 5px; background: var(--ecru-2); border-radius: 3px; margin: .8rem 0 1.5rem; overflow: hidden; }
+.wizard-barre { height: 100%; width: 0; background: var(--terracotta); border-radius: 3px; transition: width .35s ease; }
+.wizard-q { border: 0; margin-top: 1.4rem; }
+.carte-etapes { background: var(--carte); border: 1px solid var(--ligne); border-radius: .8rem; padding: .8rem 1.1rem; margin: 1rem 0; }
+.carte-etapes p { margin: .45rem 0; }
+.choix { display: flex; flex-direction: column; gap: .5rem; margin: .8rem 0 1.2rem; }
+.choix-grille { flex-direction: row; flex-wrap: wrap; }
+.choix-carte {
+  font: inherit; text-align: left; padding: .7rem 1rem; border-radius: .6rem;
+  border: 1px solid var(--ligne); background: var(--carte); color: var(--encre); cursor: pointer;
+}
+.choix-carte:hover { border-color: var(--terracotta); }
+.choix-carte.is-active { border-color: var(--terracotta); box-shadow: 0 0 0 2px var(--terracotta); }
+.choix-vibe { flex: 1 1 46%; min-width: 220px; display: flex; flex-direction: column; gap: .25rem; }
+.choix-vibe span { font-size: .85rem; color: var(--camel); }
+.btn:disabled { opacity: .45; cursor: not-allowed; }
+.pastilles { display: flex; flex-wrap: wrap; gap: .6rem; margin: .8rem 0; }
+.pastille { font: inherit; border: 0; background: transparent; cursor: pointer; text-align: center; color: var(--encre); }
+.pastille-rond { display: block; width: 3.2rem; height: 3.2rem; border-radius: 50%; border: 1px solid var(--ligne); margin: 0 auto .25rem; }
+.pastille-nom { font-size: .75rem; }
+.pastille:hover .pastille-rond { outline: 2px solid var(--terracotta); }

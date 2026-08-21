@@ -97,6 +97,15 @@ Liste d'objets `{ nom, url, categorie, notes }`. Catégories : vestes-manteaux, 
 - `layouts/partials/vignette.html` assemble silhouette + photo (avec fallback `onerror`) ; `index.json` embarque ce HTML pré-rendu pour le Studio.
 - Vues secondaires pour la vente (étiquettes, défauts) : `static/img/ventes/<slug>-etiquette.jpg`.
 
+## Onboarding (`/profil/`)
+
+Le parcours personal shopper digitalisé, 100 % client-side (aucun appel API) : auto-diagnostic colorimétrique (méthode des 4 saisons — veines, bijoux, soleil, cheveux, yeux, peau), morphologie, vibe check, puis fiche profil + capsule générée.
+
+- Données : `data/onboarding.yaml` (9 profils saisons avec palettes HEX/interdits/`roles`, vibes, icônes, modèle de capsule). La capsule référence des `roles` (`neutre_fonce`, `accent_a`…) résolus par saison — c'est ce qui rend la même capsule multi-saisons.
+- Logique : `static/js/onboarding.js` (scoring chaleur/profondeur → saison, règles morpho, exports). Profil sauvé dans `localStorage` (`vestiaire-profil`) — par appareil, pas de compte.
+- Sorties : profil Markdown à copier, et « prompt IA » complet à coller dans une session Claude/Gemini avec un selfie pour affiner (l'analyse photo par IA n'existe pas dans l'app statique — voir REPRISE-LOCALE.md pour la version backend).
+- Partage : une personne de l'entourage fait le parcours sur le site, puis forke le repo pour créer son propre Vestiaire.
+
 ## Layouts & JS
 
 - `layouts/` : templates par section ; `layouts/index.json` génère `index.json` (l'inventaire consommé par le Studio).
