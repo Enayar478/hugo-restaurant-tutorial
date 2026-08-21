@@ -9,7 +9,8 @@
     "marque" (.Params.marque | default "")
     "saison" (.Params.saison | default slice)
     "statut" (.Params.statut | default "possede")
-    "image" (.Params.image | default "")
+    "image" (partial "piece-image.html" .)
+    "vignette" (partial "vignette.html" . | chomp)
     "url" .RelPermalink
   ) -}}
 {{- end -}}

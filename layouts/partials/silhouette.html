@@ -1,0 +1,21 @@
+{{- /* ctx: dict "categorie" <string> "hex" <couleur de remplissage> */ -}}
+{{- $hex := .hex | default "#B98A5C" -}}
+<svg class="silhouette" viewBox="0 0 120 120" role="img" aria-hidden="true">
+{{- if eq .categorie "veste" -}}
+  <path fill="{{ $hex }}" d="M38 22 L54 16 L60 30 L66 16 L82 22 L94 48 L82 54 L79 42 L79 102 L41 102 L41 42 L38 54 L26 48 Z"/>
+  <path fill="#F4EDE0" opacity="0.55" d="M54 16 L60 30 L52 46 L47 30 Z M66 16 L60 30 L68 46 L73 30 Z"/>
+{{- else if eq .categorie "haut" -}}
+  <path fill="{{ $hex }}" d="M40 24 L52 18 A9 9 0 0 0 68 18 L80 24 L96 42 L84 54 L78 46 L78 102 L42 102 L42 46 L36 54 L24 42 Z"/>
+{{- else if eq .categorie "pantalon" -}}
+  <path fill="{{ $hex }}" d="M42 16 L78 16 L83 104 L64 104 L60 48 L56 104 L37 104 Z"/>
+  <path fill="#F4EDE0" opacity="0.4" d="M42 16 L78 16 L79 26 L41 26 Z"/>
+{{- else if eq .categorie "chaussures" -}}
+  <path fill="{{ $hex }}" d="M24 68 Q24 50 44 50 Q58 50 68 58 Q82 68 96 71 Q102 73 100 84 L22 84 Q18 76 24 68 Z"/>
+  <path fill="#F4EDE0" opacity="0.4" d="M22 84 L100 84 L100 89 L22 89 Z"/>
+{{- else -}}
+  <rect fill="{{ $hex }}" x="51" y="12" width="18" height="96" rx="7"/>
+  <circle fill="{{ $hex }}" cx="60" cy="60" r="24"/>
+  <circle fill="#F4EDE0" cx="60" cy="60" r="17"/>
+  <path stroke="{{ $hex }}" stroke-width="3" fill="none" stroke-linecap="round" d="M60 50 L60 60 L67 65"/>
+{{- end -}}
+</svg>

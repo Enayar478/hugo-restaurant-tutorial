@@ -6,6 +6,7 @@ disableKinds = ["taxonomy", "term", "rss"]
 
 [params]
   description = "Garde-robe, wishlist, tenues & ventes — profil Automne Chaud, vibe Ivy League / Workwear / Militaire."
+  repoUrl = "https://github.com/Enayar478/hugo-restaurant-tutorial"
   profil = "Automne Chaud"
   vibe = "Ivy League / Workwear / Militaire"
 

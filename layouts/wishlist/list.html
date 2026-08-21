@@ -2,13 +2,14 @@
 <h1>Wishlist</h1>
 {{ $total := 0 }}{{ range .Pages }}{{ $total = add $total (.Params.prix | default 0) }}{{ end }}
 <p class="lead">{{ len .Pages }} envies · budget total ~{{ $total }} €.</p>
-<p class="hint">💡 Pour ajouter une pièce depuis une URL (boutique, Vinted…), lance la skill <code>/wishlist &lt;url&gt;</code> dans Claude Code.</p>
+<p class="hint">💡 Pour ajouter une pièce depuis une URL (boutique, Vinted…), lance la skill <code>/wishlist &lt;url&gt;</code> dans Claude Code — elle rapatrie aussi l'image produit.</p>
 
 {{ $tri := slice }}
 {{ range slice "haute" "moyenne" "basse" }}{{ $tri = $tri | append (where $.Pages "Params.priorite" .) }}{{ end }}
-<div class="cards">
+<div class="cards cards-visuel">
 {{ range $tri }}
   <a class="card" href="{{ .RelPermalink }}">
+    {{ partial "vignette.html" . }}
     <span class="badge badge-{{ .Params.priorite }}">{{ .Params.priorite }}</span>
     {{ if eq .Params.source "vinted" }}<span class="badge badge-vinted">Vinted</span>{{ end }}
     <h3>{{ .Title }}</h3>

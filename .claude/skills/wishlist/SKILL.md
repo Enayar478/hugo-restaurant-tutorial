@@ -13,4 +13,5 @@ Argument attendu : une URL de produit, ou une description libre.
    - `source` : `vinted` si l'URL contient vinted, `vestiaire-co`, `ebay`, sinon `boutique`.
    - `priorite` : demandée à l'utilisateur ou `moyenne` par défaut.
    - Dans le corps : pourquoi cette pièce, taille visée, prix cible de négociation si seconde main.
-4. Vérifie le build puis résume avec le budget total wishlist mis à jour.
+4. **Image produit — toujours rapatriée dans le repo, jamais hotlinkée** (une image Vinted meurt avec l'annonce, une URL externe ne marche pas hors-ligne) : télécharge l'og:image (ou la meilleure image produit) dans `static/img/wishlist/<slug>.jpg`, compressée (bord long ≤ 1200 px, qualité ~80, < 150 Ko). Le site la détecte automatiquement par convention ; laisse `image: ""` dans ce cas. Si le téléchargement échoue, mets l'URL externe dans `image:` en pis-aller et signale-le.
+5. Vérifie le build puis résume avec le budget total wishlist mis à jour.

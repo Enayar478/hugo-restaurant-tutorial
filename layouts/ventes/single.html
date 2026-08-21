@@ -7,6 +7,10 @@
     {{ with .Params.prix }}<span class="badge">{{ . }} €</span>{{ end }}
     {{ with .Params.etat }}<span class="badge">{{ . }}</span>{{ end }}
   </p>
+  {{ with .Params.piece }}
+  {{ $p := index (where (where site.RegularPages "Section" "garde-robe") "File.BaseFileName" .) 0 }}
+  {{ with $p }}<div class="vignette-grande-box">{{ partial "vignette.html" . }}</div>{{ end }}
+  {{ end }}
   <h2>Texte de l'annonce</h2>
   <div class="annonce prose" id="annonce">{{ .Content }}</div>
   <p><button class="btn" id="copier">📋 Copier le texte</button></p>

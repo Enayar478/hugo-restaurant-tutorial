@@ -1,6 +1,8 @@
 {{ define "main" }}
 <h1>Garde-robe</h1>
-<p class="lead">{{ len .Pages }} pièces référencées.</p>
+{{ $avecPhoto := 0 }}
+{{ range .Pages }}{{ if partial "piece-image.html" . }}{{ $avecPhoto = add $avecPhoto 1 }}{{ end }}{{ end }}
+<p class="lead">{{ len .Pages }} pièces référencées · 📷 {{ $avecPhoto }}/{{ len .Pages }} en photo</p>
 
 <div class="filters" id="filters">
   <div class="filter-group" data-filter="categorie">
@@ -18,12 +20,18 @@
     <button class="chip" data-value="en-vente">En vente</button>
     <button class="chip" data-value="vendu">Vendues</button>
   </div>
+  <div class="filter-group" data-filter="photo">
+    <button class="chip is-active" data-value="">Avec ou sans photo</button>
+    <button class="chip" data-value="non">📷 Sans photo</button>
+  </div>
 </div>
 
-<div class="cards" id="pieces">
+<div class="cards cards-visuel" id="pieces">
 {{ range sort .Pages "Params.categorie" }}
   <a class="card piece" href="{{ .RelPermalink }}"
-     data-categorie="{{ .Params.categorie }}" data-statut="{{ .Params.statut }}">
+     data-categorie="{{ .Params.categorie }}" data-statut="{{ .Params.statut }}"
+     data-photo="{{ if partial "piece-image.html" . }}oui{{ else }}non{{ end }}">
+    {{ partial "vignette.html" . }}
     <span class="badge badge-{{ .Params.statut }}">{{ .Params.statut | humanize }}</span>
     <h3>{{ .Title }}</h3>
     <p>{{ .Params.marque }}{{ with .Params.couleur }} · {{ . }}{{ end }}{{ with .Params.prix }} · ~{{ . }} €{{ end }}</p>

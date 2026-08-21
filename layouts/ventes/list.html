@@ -2,9 +2,12 @@
 <h1>Ventes</h1>
 <p class="lead">Mes annonces Vinted : je prépare ici, je copie-colle là-bas.</p>
 <p class="hint">💡 La skill <code>/annonce-vinted &lt;slug-de-piece&gt;</code> rédige un brouillon d'annonce complet.</p>
-<div class="cards">
+{{ $gr := where site.RegularPages "Section" "garde-robe" }}
+<div class="cards cards-visuel">
 {{ range .Pages }}
   <a class="card" href="{{ .RelPermalink }}">
+    {{ $p := index (where $gr "File.BaseFileName" (.Params.piece | default "∅")) 0 }}
+    {{ if $p }}{{ partial "vignette.html" $p }}{{ end }}
     <span class="badge badge-{{ .Params.statut }}">{{ .Params.statut }}</span>
     <h3>{{ .Title }}</h3>
     <p>{{ with .Params.prix }}{{ . }} €{{ end }}{{ with .Params.etat }} · {{ . }}{{ end }}</p>

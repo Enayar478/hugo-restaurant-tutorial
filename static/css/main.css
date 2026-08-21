@@ -123,6 +123,39 @@ h2 { font-size: 1.2rem; margin-top: 2rem; border-bottom: 2px solid var(--ligne);
 .card.is-selected { border-color: var(--terracotta); box-shadow: 0 0 0 2px var(--terracotta); }
 
 .swatch { display: inline-block; width: 1em; height: 1em; border-radius: 50%; vertical-align: -.15em; margin-right: .3em; border: 1px solid var(--ligne); }
+
+/* ── Vignettes : photo de la pièce, ou silhouette teintée en secours ── */
+.vignette {
+  position: relative; aspect-ratio: 3 / 4; border-radius: .5rem; overflow: hidden;
+  background: var(--ecru-2); margin-bottom: .5rem;
+}
+@media (prefers-color-scheme: dark) { .vignette { background: #2E2620; } }
+.vignette .silhouette { position: absolute; inset: 0; width: 100%; height: 100%; padding: 12%; }
+.silhouette path, .silhouette rect, .silhouette circle { stroke: rgba(62, 44, 34, .22); stroke-width: 1.2; }
+.vignette img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+.vignette-grande, .vignette-grande-box .vignette { max-width: 320px; }
+.vignette-creuse { border: 2px dashed var(--ligne); background: transparent; }
+.cards-visuel { grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); }
+.cards-visuel .card { padding: .6rem; }
+.cards-visuel .card h3 { font-size: .92rem; }
+.cards-visuel .card p { font-size: .8rem; }
+
+/* ── Planche de tenue (flat lay) : Studio + fiches tenues ── */
+.planche {
+  display: grid; grid-template-columns: repeat(auto-fit, minmax(110px, 140px));
+  gap: .7rem; justify-content: center; margin: 1rem 0;
+}
+.slot { display: block; text-align: center; color: var(--encre); cursor: pointer; }
+.slot .vignette { margin-bottom: .25rem; }
+.slot-titre { font-size: .78rem; line-height: 1.25; display: block; color: var(--encre); }
+.slot-vide .slot-titre { color: var(--camel); font-style: italic; }
+.slot:hover { text-decoration: none; }
+.slot:hover .vignette { outline: 2px solid var(--terracotta); }
+
+/* ── Mini-planche : aperçu d'une tenue sur une carte ── */
+.mini-planche { display: flex; gap: .3rem; margin-bottom: .4rem; }
+.mini-planche .vignette, .mini-planche .mini .vignette { width: 3.2rem; aspect-ratio: 3/4; margin: 0; flex-shrink: 0; }
+.mini-planche .mini { display: contents; }
 .prose table { border-collapse: collapse; width: 100%; overflow-x: auto; display: block; }
 .prose th, .prose td { border: 1px solid var(--ligne); padding: .4rem .6rem; text-align: left; font-size: .9rem; }
 .prose th { background: var(--ecru-2); }

@@ -6,7 +6,11 @@
     <span class="badge badge-{{ .Params.priorite }}">priorité {{ .Params.priorite }}</span>
     {{ with .Params.source }}<span class="badge">{{ . }}</span>{{ end }}
   </p>
-  {{ with .Params.image }}<img class="photo" src="{{ . }}" alt="{{ $.Title }}">{{ end }}
+  <div class="vignette vignette-grande">
+    {{ $hex := index site.Data.couleurs (lower (.Params.couleur | default "")) | default "#B98A5C" }}
+    {{ partial "silhouette.html" (dict "categorie" (.Params.categorie | default "accessoire") "hex" $hex) }}
+    {{ with partial "piece-image.html" . }}<img src="{{ . }}" alt="{{ $.Title }}" onerror="this.remove()">{{ end }}
+  </div>
   <dl class="specs">
     {{ with .Params.marque }}<dt>Marque</dt><dd>{{ . }}</dd>{{ end }}
     {{ with .Params.prix }}<dt>Prix</dt><dd>{{ . }} €</dd>{{ end }}

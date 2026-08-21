@@ -89,11 +89,19 @@ Quand une annonce passe à `publie`, mettre la pièce correspondante en `statut:
 
 Liste d'objets `{ nom, url, categorie, notes }`. Catégories : vestes-manteaux, hauts, pantalons, chaussures, montres, lunettes, multi, seconde-main.
 
+## Images
+
+- **Convention avant tout** : une pièce est illustrée par `static/img/pieces/<slug>.jpg`, une entrée wishlist par `static/img/wishlist/<slug>.jpg`. Le site les détecte automatiquement (`layouts/partials/piece-image.html`) — le champ `image` du front matter ne sert que pour un chemin personnalisé ou une URL externe (pis-aller, ne marche pas hors-ligne).
+- **Format** : JPEG, bord long ≤ 1200 px, qualité ~80, poids < 150 Ko. Protocole de prise de vue dans `content/guide/_index.md#protocole-photo`.
+- **Sans photo**, chaque pièce affiche une silhouette SVG de sa catégorie (`layouts/partials/silhouette.html`) teintée par sa `couleur` via le mapping `data/couleurs.yaml` — toute nouvelle couleur de front matter doit y être ajoutée.
+- `layouts/partials/vignette.html` assemble silhouette + photo (avec fallback `onerror`) ; `index.json` embarque ce HTML pré-rendu pour le Studio.
+- Vues secondaires pour la vente (étiquettes, défauts) : `static/img/ventes/<slug>-etiquette.jpg`.
+
 ## Layouts & JS
 
 - `layouts/` : templates par section ; `layouts/index.json` génère `index.json` (l'inventaire consommé par le Studio).
 - `static/css/main.css` : tout le style, variables CSS palette Automne en tête de fichier.
-- `static/js/studio.js` : le composeur de tenues (localStorage, export front matter).
+- `static/js/studio.js` : le composeur de tenues en planche visuelle — slots par catégorie (1 veste, 2 hauts, 1 pantalon, 1 chaussures, accessoires illimités, remplacement de la plus ancienne), brouillons localStorage, export front matter.
 - PWA : `static/manifest.webmanifest` + `static/sw.js` (garder `CACHE_VERSION` incrémenté à chaque grosse évolution du shell).
 
 ## Agent & skills

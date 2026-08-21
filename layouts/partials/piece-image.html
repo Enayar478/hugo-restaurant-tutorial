@@ -1,0 +1,13 @@
+{{- /* Résout la source d'image d'une pièce (page garde-robe ou wishlist).
+     Ordre : front matter `image` (URL externe ou chemin) → convention
+     static/img/<section>/<slug>.jpg → "" (silhouette).
+     Retourne la src prête à l'emploi, ou chaîne vide. */ -}}
+{{- $src := "" -}}
+{{- with .Params.image -}}
+  {{- if hasPrefix . "http" -}}{{- $src = . -}}{{- else -}}{{- $src = relURL (strings.TrimLeft "/" .) -}}{{- end -}}
+{{- else -}}
+  {{- $dossier := cond (eq .Section "wishlist") "wishlist" "pieces" -}}
+  {{- $auto := printf "img/%s/%s.jpg" $dossier .File.BaseFileName -}}
+  {{- if fileExists (printf "static/%s" $auto) -}}{{- $src = relURL $auto -}}{{- end -}}
+{{- end -}}
+{{- return $src -}}
