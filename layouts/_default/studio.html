@@ -15,6 +15,25 @@
     <pre id="export" hidden></pre>
   </section>
 
+  <section class="rack">
+    <h2>Tester une pièce <span class="muted">avant de l'acheter</span></h2>
+    <p class="muted">En magasin ou devant une annonce : ajoute la pièce convoitée à la planche et vois combien de tenues elle génère avec ce que tu possèdes déjà. En dessous de 3, repose-la.</p>
+    <div class="rack-actions">
+      <label class="btn" for="photo-candidate">📷 Photo de la pièce</label>
+      <input type="file" id="photo-candidate" accept="image/*" capture="environment" hidden>
+      <input type="url" class="champ" id="lien-candidate" placeholder="…ou colle un lien produit">
+      <select class="champ" id="cat-candidate">
+        <option value="veste">Veste</option>
+        <option value="haut">Haut</option>
+        <option value="pantalon">Pantalon</option>
+        <option value="chaussures">Chaussures</option>
+        <option value="accessoire">Accessoire</option>
+      </select>
+      <button class="btn btn-ghost" id="ajouter-candidate">Tester</button>
+    </div>
+    <div id="verdict"></div>
+  </section>
+
   <section id="brouillons-section" hidden>
     <h2>Tenues gardées sur cet appareil</h2>
     <div class="cards" id="brouillons"></div>

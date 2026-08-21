@@ -6,6 +6,7 @@
 <script>
 window.ONBOARDING_DATA = {{ site.Data.onboarding | jsonify | safeJS }};
 window.VESTIAIRE_REPO = {{ site.Params.repoUrl | jsonify | safeJS }};
+window.VESTIAIRE_API = {{ site.Params.apiUrl | jsonify | safeJS }};
 </script>
 <script src="{{ "js/onboarding.js" | relURL }}"></script>
 {{ end }}

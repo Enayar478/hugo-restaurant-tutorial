@@ -173,18 +173,108 @@ icones:
   - { nom: "Daniel Craig", vibe: minimal }
 
 capsule:
-  - { nom: "Blazer en laine (croisé ou simple)", categorie: "Vestes / Manteaux", role: neutre_fonce, matiere: "Laine", marques: "Suitsupply, Boggi", budget: "250 – 400 €" }
-  - { nom: "Veste casual en toile épaisse", categorie: "Vestes / Manteaux", role: neutre_moyen, matiere: "Coton canvas / moleskine", marques: "Champ de Manœuvres, Octobre, Drapeau Noir", budget: "130 – 200 €" }
-  - { nom: "Manteau long d'hiver en laine", categorie: "Vestes / Manteaux", role: neutre_fonce, matiere: "Laine", marques: "Suitsupply, Boggi", budget: "250 – 400 €" }
-  - { nom: "3 t-shirts épais (coton Supima)", categorie: "Hauts", role: [neutre_clair, accent_a, accent_b], matiere: "Coton lourd", marques: "Asphalte, Loom", budget: "35 – 40 €/pc" }
-  - { nom: "2 chemises Oxford (unie + rayée)", categorie: "Hauts", role: neutre_clair, matiere: "Coton Oxford", marques: "Kamakura, Drapeau Noir", budget: "90 – 120 €/pc" }
-  - { nom: "2 pulls / gilets col V", categorie: "Hauts", role: [accent_c, accent_b], matiere: "Laine mérinos ou lambswool", marques: "Paris Yorker, Asphalte", budget: "70 – 120 €/pc" }
-  - { nom: "Polo en maille tricot (été)", categorie: "Hauts", role: neutre_clair, matiere: "Coton ou lin tricoté", marques: "Scott Fraser, Berg & Berg", budget: "130 – 180 €" }
-  - { nom: "Chemise casual manches courtes (été)", categorie: "Hauts", role: accent_a, matiere: "Lin ou flanelle légère", marques: "Portuguese Flannel", budget: "90 – 120 €" }
-  - { nom: "Pantalon signature de ta vibe", categorie: "Pantalons", role: accent_b, matiere: "Selon vibe (ripstop, velours…)", marques: "Bronson, Stan Ray, Casatlantic", budget: "60 – 160 €" }
-  - { nom: "Pantalon en velours côtelé taille haute", categorie: "Pantalons", role: neutre_moyen, matiere: "Velours côtelé", marques: "Casatlantic, Spier & Mackay", budget: "130 – 160 €" }
-  - { nom: "Chino ample taille haute", categorie: "Pantalons", role: neutre_fonce, matiere: "Coton twill", marques: "Casatlantic", budget: "150 – 170 €" }
-  - { nom: "Pantalon ou short en lin (été)", categorie: "Pantalons", role: neutre_clair, matiere: "Lin", marques: "Scott Fraser", budget: "150 – 250 €" }
-  - { nom: "Boots robustes en cuir", categorie: "Chaussures", role: cuir, matiere: "Cuir pleine fleur", marques: "Red Wing, Paraboot", budget: "~350 €" }
-  - { nom: "Loafers en daim", categorie: "Chaussures", role: cuir, matiere: "Daim", marques: "Meermin, Velasca", budget: "~200 €" }
-  - { nom: "Troisième paire selon ta vibe", categorie: "Chaussures", role: cuir, matiere: "Cuir lisse ou sneaker sobre", marques: "Septième Largeur, CQP", budget: "150 – 345 €" }
+  - nom: "Blazer en laine (croisé ou simple)"
+    categorie: "Vestes / Manteaux"
+    saison_portee: "toute l'année"
+    role: neutre_fonce
+    matiere: "Laine"
+    marques: [{ nom: "Suitsupply", url: "https://suitsupply.com" }, { nom: "Boggi", url: "https://www.boggi.com" }]
+    budget: "250 – 400 €"
+  - nom: "Veste casual en toile épaisse"
+    categorie: "Vestes / Manteaux"
+    saison_portee: "toute l'année"
+    role: neutre_moyen
+    matiere: "Coton canvas / moleskine"
+    marques: [{ nom: "Champ de Manœuvres", url: "https://champdemanoeuvres.fr" }, { nom: "Octobre", url: "https://octobre-editions.com" }, { nom: "Drapeau Noir", url: "https://drapeau-noir.fr" }]
+    budget: "130 – 200 €"
+  - nom: "Manteau long d'hiver en laine"
+    categorie: "Vestes / Manteaux"
+    saison_portee: "hiver"
+    role: neutre_fonce
+    matiere: "Laine"
+    marques: [{ nom: "Suitsupply", url: "https://suitsupply.com" }, { nom: "Boggi", url: "https://www.boggi.com" }]
+    budget: "250 – 400 €"
+  - nom: "3 t-shirts épais (coton Supima)"
+    categorie: "Hauts"
+    saison_portee: "toute l'année"
+    role: [neutre_clair, accent_a, accent_b]
+    matiere: "Coton lourd"
+    marques: [{ nom: "Asphalte", url: "https://asphalte.com" }, { nom: "Loom", url: "https://loom.fr" }]
+    budget: "35 – 40 €/pc"
+  - nom: "2 chemises Oxford (unie + rayée)"
+    categorie: "Hauts"
+    saison_portee: "toute l'année"
+    role: neutre_clair
+    matiere: "Coton Oxford"
+    marques: [{ nom: "Kamakura", url: "https://kamakurashirts.com" }, { nom: "Drapeau Noir", url: "https://drapeau-noir.fr" }]
+    budget: "90 – 120 €/pc"
+  - nom: "2 pulls / gilets col V"
+    categorie: "Hauts"
+    saison_portee: "hiver"
+    role: [accent_c, accent_b]
+    matiere: "Laine mérinos ou lambswool"
+    marques: [{ nom: "Paris Yorker", url: "https://parisyorker.com" }, { nom: "Asphalte", url: "https://asphalte.com" }]
+    budget: "70 – 120 €/pc"
+  - nom: "Polo en maille tricot"
+    categorie: "Hauts"
+    saison_portee: "été"
+    role: neutre_clair
+    matiere: "Coton ou lin tricoté"
+    marques: [{ nom: "Scott Fraser", url: "https://scottfrasercollection.com" }, { nom: "Berg & Berg", url: "https://bergbergstore.com" }]
+    budget: "130 – 180 €"
+  - nom: "Chemise casual manches courtes"
+    categorie: "Hauts"
+    saison_portee: "été"
+    role: accent_a
+    matiere: "Lin ou flanelle légère"
+    marques: [{ nom: "Portuguese Flannel", url: "https://portugueseflannel.com" }]
+    budget: "90 – 120 €"
+  - nom: "Pantalon signature de ta vibe"
+    categorie: "Pantalons"
+    saison_portee: "toute l'année"
+    role: accent_b
+    matiere: "Selon vibe (ripstop, velours…)"
+    marques: [{ nom: "Bronson", url: "https://www.bronsonshop.com" }, { nom: "Stan Ray", url: "https://www.stanray.com" }, { nom: "Casatlantic", url: "https://casatlantic.com" }]
+    budget: "60 – 160 €"
+  - nom: "Pantalon en velours côtelé taille haute"
+    categorie: "Pantalons"
+    saison_portee: "hiver"
+    role: neutre_moyen
+    matiere: "Velours côtelé"
+    marques: [{ nom: "Casatlantic", url: "https://casatlantic.com" }, { nom: "Spier & Mackay", url: "https://spierandmackay.com" }]
+    budget: "130 – 160 €"
+  - nom: "Chino ample taille haute"
+    categorie: "Pantalons"
+    saison_portee: "toute l'année"
+    role: neutre_fonce
+    matiere: "Coton twill"
+    marques: [{ nom: "Casatlantic", url: "https://casatlantic.com" }]
+    budget: "150 – 170 €"
+  - nom: "Pantalon ou short en lin"
+    categorie: "Pantalons"
+    saison_portee: "été"
+    role: neutre_clair
+    matiere: "Lin"
+    marques: [{ nom: "Scott Fraser", url: "https://scottfrasercollection.com" }]
+    budget: "150 – 250 €"
+  - nom: "Boots robustes en cuir"
+    categorie: "Chaussures"
+    saison_portee: "hiver"
+    role: cuir
+    matiere: "Cuir pleine fleur"
+    marques: [{ nom: "Red Wing", url: "https://www.redwingshoes.com" }, { nom: "Paraboot", url: "https://www.paraboot.com" }]
+    budget: "~350 €"
+  - nom: "Loafers en daim"
+    categorie: "Chaussures"
+    saison_portee: "toute l'année"
+    role: cuir
+    matiere: "Daim"
+    marques: [{ nom: "Meermin", url: "https://meermin.com" }, { nom: "Velasca", url: "https://www.velasca.com" }]
+    budget: "~200 €"
+  - nom: "Troisième paire selon ta vibe"
+    categorie: "Chaussures"
+    saison_portee: "été"
+    role: cuir
+    matiere: "Cuir lisse ou sneaker sobre"
+    marques: [{ nom: "Septième Largeur", url: "https://septiemelargeur.fr" }, { nom: "CQP", url: "https://c-qp.com" }]
+    budget: "150 – 345 €"

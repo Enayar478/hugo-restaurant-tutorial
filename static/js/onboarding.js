@@ -1,55 +1,58 @@
-/* Onboarding : le parcours personal shopper digitalisé.
-   Diagnostic colorimétrique auto-évalué (méthode des 4 saisons : veines, bijoux,
-   soleil, cheveux, yeux, peau), morphologie, vibe check, puis génération de la
-   fiche profil + capsule. Profil sauvé en localStorage (par appareil), exports
-   Markdown et prompt IA pour affiner en session LLM avec un selfie. */
+/* Onboarding — le parcours personal shopper, fidèle aux épiques produit :
+   ① Capture visuelle (caméra masque ovale + checklist, ou upload) et précisions manuelles
+   ② Diagnostic colorimétrie & morphologie (analyse via backend — voir analyser())
+   ③ Vibe check (quiz de cartes façon Tinder), icônes, contexte & budget
+   ④ Fiche profil + capsule générée
+   Le POST part vers window.VESTIAIRE_API (hugo.toml → params.apiUrl). Tant que
+   l'endpoint est vide : MODE DÉMO — une estimation locale rend le même JSON que
+   le backend, pour tester tout le parcours de bout en bout. Contrat d'API
+   documenté dans REPRISE-LOCALE.md. */
 (() => {
   const DATA = window.ONBOARDING_DATA;
-  const REPO = window.VESTIAIRE_REPO;
+  const API = window.VESTIAIRE_API || '';
   const LS_PROFIL = 'vestiaire-profil';
   const wizard = document.getElementById('wizard');
   const barre = document.getElementById('barre');
 
-  /* Chaque réponse porte [chaleur, profondeur] : chaleur > 0 = chaud,
-     profondeur > 0 = foncé/intense. La somme détermine la saison. */
-  const QUESTIONS_COLO = [
-    { id: 'veines', q: 'Regarde les veines de ton poignet à la lumière du jour :', opts: [
-      ['Plutôt vertes', 2, 0], ['Plutôt bleues / violettes', -2, 0], ['Un mélange des deux', 0, 0]] },
-    { id: 'bijoux', q: 'Quel métal te donne meilleure mine près du visage ?', opts: [
-      ['L\'or (doré)', 2, 0], ['L\'argent', -2, 0], ['Les deux se valent', 0, 0]] },
-    { id: 'soleil', q: 'Au soleil, ta peau…', opts: [
-      ['Bronze facilement, dorée', 1, 0], ['Prend des coups de soleil, rougit', -1, 0], ['Rougit puis finit par bronzer', 0, 0]] },
-    { id: 'cheveux', q: 'Ta couleur de cheveux naturelle :', opts: [
-      ['Noir profond', -1, 2], ['Brun froid / cendré', -1, 1], ['Brun chaud / châtain', 1, 1],
-      ['Roux / auburn', 2, 0], ['Blond doré', 1, -1], ['Blond cendré', -1, -1], ['Gris / blanc', 0, -1]] },
-    { id: 'yeux', q: 'La couleur de tes yeux :', opts: [
-      ['Marron très foncé', 0, 2], ['Noisette / vert doré', 1, 1], ['Vert', 1, 0],
-      ['Bleu', -1, -1], ['Gris', -1, 0]] },
-    { id: 'peau', q: 'Le sous-ton de ta peau (sans bronzage) :', opts: [
-      ['Porcelaine rosée', -1, -1], ['Ivoire pêche', 1, -1], ['Beige doré', 1, 0],
-      ['Olive', 0, 1], ['Mate dorée', 1, 1], ['Foncée', 0, 2]] },
+  const CHECKLIST = [
+    'Lumière du jour (pas de néon, pas de flash)',
+    'Sans filtre ni retouche',
+    'Fond neutre derrière moi',
+    'Pas de lunettes teintées ni maquillage',
   ];
 
-  const QUESTIONS_MORPHO = [
-    { id: 'carrure', q: 'Ta carrure :', opts: ['Épaules larges / carrées', 'Moyenne', 'Fine / étroite'] },
-    { id: 'ventre', q: 'Ton ventre :', opts: ['Plat', 'Léger', 'Présent'] },
-    { id: 'jambes', q: 'Tes jambes par rapport à ton buste :', opts: ['Plutôt courtes', 'Proportionnées', 'Plutôt longues'] },
+  const PRECISIONS = [
+    { id: 'yeux', q: 'La couleur de tes yeux', opts: ['Marron très foncé', 'Noisette / vert doré', 'Vert', 'Bleu', 'Gris'] },
+    { id: 'cheveux', q: 'Ta couleur de cheveux naturelle', opts: ['Noir profond', 'Brun froid / cendré', 'Brun chaud / châtain', 'Roux / auburn', 'Blond doré', 'Blond cendré', 'Gris / blanc'] },
+    { id: 'soleil', q: 'Ta réaction au soleil', opts: ['Bronze vite, dorée', 'Prend des coups de soleil', 'Rougit puis bronze'] },
+    { id: 'veines', q: 'Tes veines au poignet (lumière du jour)', opts: ['Plutôt vertes', 'Plutôt bleues / violettes', 'Un mélange des deux'] },
+    { id: 'bijoux', q: 'Le métal qui te va le mieux', opts: ["L'or (doré)", "L'argent", 'Les deux se valent'] },
   ];
 
+  const SILHOUETTES = ['Épaules larges / carrure athlétique', 'Carrure moyenne', 'Fine / étroite'];
+  const COMPLEXES = ['Ventre', 'Jambes courtes', 'Grande taille', 'Petite taille', 'Bras fins', 'Aucun'];
   const CONTEXTES = ['Bureau formel', 'Casual pro', 'Télétravail', 'Terrain / manuel'];
-  const BUDGETS = ['< 100 €/mois', '100 – 250 €/mois', '250 – 500 €/mois', '> 500 €/mois'];
+  const SORTIES = ['Rarement', 'Quelques fois par mois', 'Chaque semaine'];
 
   const etat = {
-    colo: {}, coloLabels: {}, morpho: {}, taille: '',
-    vibes: [], icones: [], contexte: '', budget: '',
+    photo: null,          // dataURL JPEG (jamais envoyé au localStorage)
+    precisions: {},
+    taille: '', silhouette: '', complexes: [],
+    vibesAimees: [], vibesPassees: [], icones: [],
+    contexte: '', sorties: '', budget: 250,
   };
   let etape = 0;
-  const NB_ETAPES = 5;
+  const NB_ETAPES = 8;
+  let fluxCamera = null;
 
   function maj(html) {
+    arreterCamera();
     wizard.innerHTML = html;
     barre.style.width = `${(etape / (NB_ETAPES - 1)) * 100}%`;
     window.scrollTo({ top: 0 });
+  }
+  function arreterCamera() {
+    if (fluxCamera) { fluxCamera.getTracks().forEach(t => t.stop()); fluxCamera = null; }
   }
 
   /* ── Étape 0 : intro ── */
@@ -58,326 +61,482 @@
     const profil = profilSauve();
     maj(`
       <h1>Créer ton profil</h1>
-      <p class="lead">Le parcours complet du personal shopper : colorimétrie, morphologie, style — et à la fin, ta palette et ta garde-robe capsule personnalisées.</p>
-      ${profil ? `<div class="hint">👤 Un profil <strong>${profil.saison.nom}</strong> est déjà enregistré sur cet appareil. <button class="chip" id="voir-profil">Le revoir</button> ou recommence le parcours ci-dessous.</div>` : ''}
+      <p class="lead">Le parcours complet du personal shopper : ton selfie, tes couleurs, ta silhouette, ton style — et à la fin, ta palette et ta garde-robe capsule.</p>
+      ${profil ? `<div class="hint">👤 Un profil <strong>${profil.resultat.saison.nom}</strong> est déjà enregistré sur cet appareil. <button class="chip" id="voir-profil">Le revoir</button></div>` : ''}
       <div class="carte-etapes">
-        <p>① <strong>Tes couleurs</strong> — 6 questions d'observation (2 min, lumière du jour recommandée)</p>
-        <p>② <strong>Ta silhouette</strong> — pour les règles de coupe</p>
-        <p>③ <strong>Ta vibe</strong> — univers, icônes, quotidien, budget</p>
-        <p>④ <strong>Ton profil</strong> — saison, palette, interdits, capsule complète</p>
+        <p>① <strong>Ton selfie</strong> — guidé, lumière du jour</p>
+        <p>② <strong>Précisions</strong> — yeux, cheveux, réaction au soleil</p>
+        <p>③ <strong>Ta silhouette</strong> — taille, carrure, complexes</p>
+        <p>④ <strong>Ta vibe</strong> — le quiz de style, tes icônes, ton quotidien</p>
+        <p>⑤ <strong>L'analyse</strong> — ta saison, ta palette, ta capsule</p>
       </div>
-      <p class="hint">📷 Astuce : le résultat sera encore plus précis si tu le fais valider ensuite par une IA avec un selfie — le bouton « Copier le prompt IA » de la fin prépare tout.</p>
+      ${API ? '' : '<p class="hint">🧪 Backend d\'analyse non branché : le parcours tourne en <strong>mode démo</strong> (estimation locale) — parfait pour tester.</p>'}
       <button class="btn" id="commencer">C'est parti →</button>
     `);
-    document.getElementById('commencer').addEventListener('click', () => ecranColo(0));
+    document.getElementById('commencer').addEventListener('click', ecranPhoto);
     const vp = document.getElementById('voir-profil');
-    if (vp) vp.addEventListener('click', () => { ecranResultat(profil); });
+    if (vp) vp.addEventListener('click', () => ecranResultat(profil.resultat, profil.entrees));
   }
 
-  /* ── Étape 1 : colorimétrie ── */
-  function ecranColo(i) {
+  /* ── Étape 1 : capture visuelle (US 1.1) ── */
+  function ecranPhoto() {
     etape = 1;
-    const q = QUESTIONS_COLO[i];
     maj(`
-      <p class="muted">Tes couleurs — question ${i + 1}/${QUESTIONS_COLO.length}</p>
-      <h2 class="wizard-q">${q.q}</h2>
-      <div class="choix" id="choix"></div>
+      <p class="muted">Ton selfie — étape 1/${NB_ETAPES - 1}</p>
+      <h2 class="wizard-q">La photo qui dit tes vraies couleurs</h2>
+      <p>Place ton visage dans l'ovale, en lumière du jour, et vérifie la checklist avant de valider.</p>
+      <div class="cadre-camera" id="cadre">
+        <video id="video" autoplay playsinline muted hidden></video>
+        <img id="apercu" alt="Aperçu du selfie" hidden>
+        <div class="masque-ovale" id="masque"></div>
+        <p class="muted" id="cam-message">La caméra s'affichera ici.</p>
+      </div>
+      <div class="rack-actions">
+        <button class="btn" id="ouvrir-camera">📷 Ouvrir la caméra</button>
+        <button class="btn btn-ghost" id="capturer" hidden>⭕ Capturer</button>
+        <label class="btn btn-ghost" for="fichier">🖼 Uploader une photo</label>
+        <input type="file" id="fichier" accept="image/jpeg,image/png,image/webp" hidden>
+        <button class="btn btn-ghost" id="reprendre" hidden>↺ Reprendre</button>
+      </div>
+      <div class="checklist" id="checklist">
+        ${CHECKLIST.map((c, i) => `<label><input type="checkbox" data-check="${i}"> ${c}</label>`).join('')}
+      </div>
+      <button class="btn" id="valider-photo" disabled>Continuer →</button>
+      <p class="muted">La photo reste sur ton appareil${API ? " jusqu'à l'analyse" : ' (mode démo : elle ne part nulle part)'}.</p>
     `);
-    const box = document.getElementById('choix');
-    q.opts.forEach(([label, w, d]) => {
-      const b = document.createElement('button');
-      b.className = 'choix-carte';
-      b.textContent = label;
-      b.addEventListener('click', () => {
-        etat.colo[q.id] = [w, d];
-        etat.coloLabels[q.id] = label;
-        i + 1 < QUESTIONS_COLO.length ? ecranColo(i + 1) : ecranMorpho(0);
-      });
-      box.appendChild(b);
+
+    const video = document.getElementById('video');
+    const apercu = document.getElementById('apercu');
+    const masque = document.getElementById('masque');
+    const message = document.getElementById('cam-message');
+    const btnCam = document.getElementById('ouvrir-camera');
+    const btnCap = document.getElementById('capturer');
+    const btnRe = document.getElementById('reprendre');
+    const valider = document.getElementById('valider-photo');
+
+    const verifier = () => {
+      const cochees = [...document.querySelectorAll('#checklist input')].every(c => c.checked);
+      valider.disabled = !(etat.photo && cochees);
+    };
+    document.getElementById('checklist').addEventListener('change', verifier);
+
+    const montrerPhoto = (dataUrl) => {
+      etat.photo = dataUrl;
+      arreterCamera();
+      video.hidden = true; btnCap.hidden = true;
+      apercu.src = dataUrl; apercu.hidden = false;
+      masque.classList.add('masque-ok');
+      message.hidden = true; btnRe.hidden = false; btnCam.hidden = true;
+      verifier();
+    };
+
+    btnCam.addEventListener('click', async () => {
+      try {
+        fluxCamera = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'user', width: { ideal: 1024 } } });
+        video.srcObject = fluxCamera;
+        video.hidden = false; message.hidden = true; btnCam.hidden = true;
+        // Attendre les dimensions réelles : capturer avant donnerait un canvas 0×0.
+        const pret = () => { btnCap.hidden = false; };
+        video.readyState >= 1 ? pret() : video.addEventListener('loadedmetadata', pret, { once: true });
+      } catch (e) {
+        message.textContent = 'Caméra indisponible — utilise « Uploader une photo ».';
+      }
     });
+
+    btnCap.addEventListener('click', () => {
+      const vw = video.videoWidth, vh = video.videoHeight;
+      if (!vw || !vh) { message.hidden = false; message.textContent = 'La caméra n\'est pas encore prête — réessaie.'; return; }
+      // Recadrage 3:4 centré, toujours contenu dans la source (portrait comme paysage).
+      const sw = Math.min(vw, vh * 3 / 4), sh = sw * 4 / 3;
+      const sx = (vw - sw) / 2, sy = (vh - sh) / 2;
+      const c = document.createElement('canvas');
+      c.width = Math.round(Math.min(sw, 900));
+      c.height = Math.round(c.width * 4 / 3);
+      const ctx = c.getContext('2d');
+      // La vidéo est affichée en miroir : capturer à l'identique pour que la
+      // photo corresponde au cadrage fait dans l'ovale.
+      ctx.translate(c.width, 0); ctx.scale(-1, 1);
+      ctx.drawImage(video, sx, sy, sw, sh, 0, 0, c.width, c.height);
+      montrerPhoto(c.toDataURL('image/jpeg', 0.85));
+    });
+
+    document.getElementById('fichier').addEventListener('change', (e) => {
+      const f = e.target.files[0];
+      if (!f) return;
+      const echec = () => {
+        message.hidden = false;
+        message.textContent = 'Image illisible — essaie un autre fichier (JPG, PNG ou WEBP).';
+      };
+      const lecteur = new FileReader();
+      lecteur.onerror = echec;
+      lecteur.onload = () => {
+        const img = new Image();
+        img.onerror = echec;
+        img.onload = () => {
+          const c = document.createElement('canvas');
+          const echelle = Math.min(1, 900 / Math.max(img.width, img.height));
+          c.width = Math.round(img.width * echelle); c.height = Math.round(img.height * echelle);
+          c.getContext('2d').drawImage(img, 0, 0, c.width, c.height);
+          montrerPhoto(c.toDataURL('image/jpeg', 0.85));
+        };
+        img.src = lecteur.result;
+      };
+      lecteur.readAsDataURL(f);
+    });
+
+    btnRe.addEventListener('click', () => { etat.photo = null; ecranPhoto(); });
+    valider.addEventListener('click', () => ecranPrecisions(0));
   }
 
-  /* ── Étape 2 : morphologie ── */
-  function ecranMorpho(i) {
+  /* ── Étape 2 : précisions manuelles optionnelles (US 1.2) ── */
+  function ecranPrecisions(i) {
     etape = 2;
-    const q = QUESTIONS_MORPHO[i];
+    const q = PRECISIONS[i];
     maj(`
-      <p class="muted">Ta silhouette — question ${i + 1}/${QUESTIONS_MORPHO.length}</p>
+      <p class="muted">Précisions — étape 2/${NB_ETAPES - 1} · question ${i + 1}/${PRECISIONS.length}</p>
       <h2 class="wizard-q">${q.q}</h2>
+      <p class="muted">Optionnel — ça lève les ambiguïtés si la lumière de ta photo est imparfaite.</p>
       <div class="choix" id="choix"></div>
+      <button class="btn btn-ghost" id="passer">Je ne sais pas →</button>
     `);
+    const suivant = () => (i + 1 < PRECISIONS.length ? ecranPrecisions(i + 1) : ecranMorpho());
     const box = document.getElementById('choix');
     q.opts.forEach(label => {
       const b = document.createElement('button');
       b.className = 'choix-carte';
       b.textContent = label;
-      b.addEventListener('click', () => {
-        etat.morpho[q.id] = label;
-        i + 1 < QUESTIONS_MORPHO.length ? ecranMorpho(i + 1) : ecranVibes();
-      });
+      b.addEventListener('click', () => { etat.precisions[q.id] = label; suivant(); });
       box.appendChild(b);
+    });
+    document.getElementById('passer').addEventListener('click', suivant);
+  }
+
+  /* ── Étape 3 : morphologie (US 2.2) ── */
+  function ecranMorpho() {
+    etape = 3;
+    maj(`
+      <p class="muted">Ta silhouette — étape 3/${NB_ETAPES - 1}</p>
+      <h2 class="wizard-q">Ta taille</h2>
+      <input type="number" class="champ" id="taille" placeholder="en cm (ex. 178)" min="120" max="230">
+      <h2 class="wizard-q">Ta silhouette</h2>
+      <div class="choix" id="silhouettes"></div>
+      <h2 class="wizard-q">Tes complexes éventuels <span class="muted">(plusieurs choix possibles)</span></h2>
+      <div class="choix choix-grille" id="complexes"></div>
+      <button class="btn" id="valider" disabled>Continuer →</button>
+    `);
+    const valider = document.getElementById('valider');
+    const verifier = () => { valider.disabled = !etat.silhouette; };
+
+    const sil = document.getElementById('silhouettes');
+    SILHOUETTES.forEach(s => {
+      const b = document.createElement('button');
+      b.className = 'choix-carte'; b.textContent = s;
+      b.addEventListener('click', () => {
+        etat.silhouette = s;
+        sil.querySelectorAll('.choix-carte').forEach(c => c.classList.remove('is-active'));
+        b.classList.add('is-active'); verifier();
+      });
+      sil.appendChild(b);
+    });
+
+    const cx = document.getElementById('complexes');
+    COMPLEXES.forEach(c => {
+      const b = document.createElement('button');
+      b.className = 'choix-carte'; b.textContent = c;
+      b.addEventListener('click', () => {
+        if (c === 'Aucun') { etat.complexes = ['Aucun']; }
+        else {
+          etat.complexes = etat.complexes.filter(x => x !== 'Aucun');
+          const i = etat.complexes.indexOf(c);
+          i >= 0 ? etat.complexes.splice(i, 1) : etat.complexes.push(c);
+        }
+        cx.querySelectorAll('.choix-carte').forEach(x => x.classList.toggle('is-active', etat.complexes.includes(x.textContent)));
+      });
+      cx.appendChild(b);
+    });
+
+    valider.addEventListener('click', () => {
+      etat.taille = document.getElementById('taille').value;
+      ecranVibeQuiz(0);
     });
   }
 
-  /* ── Étape 3 : vibes, icônes, contexte, budget ── */
-  function ecranVibes() {
-    etape = 3;
+  /* ── Étape 4 : quiz visuel d'affinités, le « Tinder du style » (US 3.1) ── */
+  function ecranVibeQuiz(i) {
+    etape = 4;
+    const v = DATA.vibes[i];
+    if (!v) return ecranIcones();
     maj(`
-      <p class="muted">Ta vibe</p>
-      <h2 class="wizard-q">Quels univers te parlent ? <span class="muted">(1 à 3 choix)</span></h2>
-      <div class="choix choix-grille" id="vibes"></div>
-      <h2 class="wizard-q">Tes références <span class="muted">(optionnel)</span></h2>
-      <div class="choix choix-grille" id="icones"></div>
-      <h2 class="wizard-q">Ton quotidien</h2>
-      <div class="choix" id="contextes"></div>
-      <h2 class="wizard-q">Ton budget vêtements</h2>
-      <div class="choix" id="budgets"></div>
-      <button class="btn" id="valider" disabled>Voir mon profil →</button>
+      <p class="muted">Ta vibe — carte ${i + 1}/${DATA.vibes.length}</p>
+      <div class="tinder-carte">
+        <div class="tinder-emoji">${v.emoji}</div>
+        <h2>${v.nom}</h2>
+        <p>${v.description}</p>
+        <p class="muted">${v.signatures.join(' · ')}</p>
+      </div>
+      <div class="tinder-actions">
+        <button class="btn btn-ghost" id="passe">✖️ Pas pour moi</button>
+        <button class="btn" id="aime">❤️ Ça me parle</button>
+      </div>
     `);
+    document.getElementById('aime').addEventListener('click', () => { etat.vibesAimees.push(v.id); ecranVibeQuiz(i + 1); });
+    document.getElementById('passe').addEventListener('click', () => { etat.vibesPassees.push(v.id); ecranVibeQuiz(i + 1); });
+  }
 
-    const valider = document.getElementById('valider');
-    const verifier = () => {
-      valider.disabled = !(etat.vibes.length && etat.contexte && etat.budget);
-    };
-
-    const vb = document.getElementById('vibes');
-    DATA.vibes.forEach(v => {
-      const b = document.createElement('button');
-      b.className = 'choix-carte choix-vibe';
-      b.innerHTML = `<strong>${v.emoji} ${v.nom}</strong><span>${v.description}</span>`;
-      b.addEventListener('click', () => {
-        const i = etat.vibes.indexOf(v.id);
-        if (i >= 0) etat.vibes.splice(i, 1);
-        else if (etat.vibes.length < 3) etat.vibes.push(v.id);
-        b.classList.toggle('is-active', etat.vibes.includes(v.id));
-        verifier();
-      });
-      vb.appendChild(b);
-    });
-
-    const ic = document.getElementById('icones');
+  /* ── Étape 5 : icônes & références (US 3.2) ── */
+  function ecranIcones() {
+    etape = 5;
+    maj(`
+      <p class="muted">Tes références — étape 5/${NB_ETAPES - 1}</p>
+      ${etat.vibesAimees.length ? '' : '<p class="hint">Aucun univers ne t\'a parlé — tes références ci-dessous guideront alors le style à elles seules.</p>'}
+      <h2 class="wizard-q">Qui incarne l'allure que tu vises ? <span class="muted">(optionnel, plusieurs choix)</span></h2>
+      <div class="choix choix-grille" id="icones"></div>
+      <button class="btn" id="valider">Continuer →</button>
+    `);
+    const box = document.getElementById('icones');
     DATA.icones.forEach(p => {
       const b = document.createElement('button');
-      b.className = 'choix-carte';
-      b.textContent = p.nom;
+      b.className = 'choix-carte'; b.textContent = p.nom;
       b.addEventListener('click', () => {
         const i = etat.icones.indexOf(p.nom);
         i >= 0 ? etat.icones.splice(i, 1) : etat.icones.push(p.nom);
         b.classList.toggle('is-active', etat.icones.includes(p.nom));
       });
-      ic.appendChild(b);
+      box.appendChild(b);
     });
+    document.getElementById('valider').addEventListener('click', ecranContexte);
+  }
 
-    const monoChoix = (elId, valeurs, cle) => {
+  /* ── Étape 6 : contexte de vie & budget (US 3.3) ── */
+  function ecranContexte() {
+    etape = 6;
+    maj(`
+      <p class="muted">Ton quotidien — étape 6/${NB_ETAPES - 1}</p>
+      <h2 class="wizard-q">Ton environnement principal</h2>
+      <div class="choix" id="contextes"></div>
+      <h2 class="wizard-q">Tes sorties</h2>
+      <div class="choix" id="sorties"></div>
+      <h2 class="wizard-q">Ton rythme d'achat cible</h2>
+      <p><input type="range" id="budget" min="50" max="600" step="25" value="${etat.budget}" style="width:100%">
+      <strong id="budget-val">~${etat.budget} €/mois</strong></p>
+      <button class="btn" id="valider" disabled>Lancer l'analyse →</button>
+    `);
+    const valider = document.getElementById('valider');
+    const verifier = () => { valider.disabled = !(etat.contexte && etat.sorties); };
+    const mono = (elId, valeurs, cle) => {
       const box = document.getElementById(elId);
       valeurs.forEach(v => {
         const b = document.createElement('button');
-        b.className = 'choix-carte';
-        b.textContent = v;
+        b.className = 'choix-carte'; b.textContent = v;
         b.addEventListener('click', () => {
           etat[cle] = v;
           box.querySelectorAll('.choix-carte').forEach(c => c.classList.remove('is-active'));
-          b.classList.add('is-active');
-          verifier();
+          b.classList.add('is-active'); verifier();
         });
         box.appendChild(b);
       });
     };
-    monoChoix('contextes', CONTEXTES, 'contexte');
-    monoChoix('budgets', BUDGETS, 'budget');
-
-    valider.addEventListener('click', () => {
-      const profil = construireProfil();
-      sauver(profil);
-      ecranResultat(profil);
+    mono('contextes', CONTEXTES, 'contexte');
+    mono('sorties', SORTIES, 'sorties');
+    const slider = document.getElementById('budget');
+    slider.addEventListener('input', () => {
+      etat.budget = Number(slider.value);
+      document.getElementById('budget-val').textContent = `~${etat.budget} €/mois`;
     });
+    valider.addEventListener('click', ecranAnalyse);
   }
 
-  /* ── Le diagnostic ── */
-  function diagnostiquer() {
-    let W = 0, D = 0;
-    Object.values(etat.colo).forEach(([w, d]) => { W += w; D += d; });
-    let cle;
-    if (W >= 1) {
-      if (D >= 1) cle = W >= 3 ? 'automne-chaud' : (D >= 3 ? 'automne-profond' : 'automne-doux');
-      else cle = D <= -2 ? 'printemps-clair' : 'printemps-chaud';
-    } else {
-      if (D >= 1) cle = D >= 3 ? 'hiver-profond' : 'hiver-froid';
-      else cle = D <= -2 ? 'ete-clair' : 'ete-doux';
-    }
-    return { cle, W, D };
-  }
-
-  function reglesMorpho() {
-    const r = [];
-    const m = etat.morpho;
-    if (m.carrure === 'Épaules larges / carrées') r.push('Coupes amples et fluides pour équilibrer la carrure — éviter le très cintré et les épaulettes marquées.');
-    if (m.carrure === 'Fine / étroite') r.push('Structurer le haut : épaules légèrement construites, superpositions (chemise + pull + veste), matières texturées.');
-    if (m.carrure === 'Moyenne') r.push('Carrure équilibrée : la plupart des coupes fonctionnent, viser le tombé naturel de l\'épaule.');
-    if (m.ventre !== 'Plat') r.push('Taille haute portée au nombril : elle allonge la jambe et structure le buste — bannir la taille basse qui coupe au mauvais endroit.');
-    else r.push('Taille haute recommandée quand même : c\'est elle qui donne la silhouette héritage.');
-    if (m.jambes === 'Plutôt courtes') r.push('Allonger la jambe : taille haute, pas ou peu de revers, chaussures dans les tons du pantalon.');
-    if (m.jambes === 'Plutôt longues') r.push('Tu peux te permettre revers généreux et pantalons à plis.');
-    r.push('Règle générale : ample ne veut pas dire informe — le volume se porte avec une taille marquée.');
-    return r;
-  }
-
-  function construireProfil() {
-    const diag = diagnostiquer();
-    const saison = DATA.saisons[diag.cle];
+  /* ── Étape 7 : traitement LLM (US 2.1) ── */
+  function payload() {
     return {
-      version: 1,
-      date: new Date().toISOString().slice(0, 10),
-      saisonCle: diag.cle,
-      saison,
-      scores: { chaleur: diag.W, profondeur: diag.D },
-      reponses: { ...etat.coloLabels },
-      morpho: { ...etat.morpho },
-      regles: reglesMorpho(),
-      vibes: etat.vibes,
+      photo_base64: etat.photo,
+      precisions: etat.precisions,
+      morphologie: { taille_cm: etat.taille || null, silhouette: etat.silhouette, complexes: etat.complexes },
+      vibes: { aimees: etat.vibesAimees, passees: etat.vibesPassees },
       icones: etat.icones,
       contexte: etat.contexte,
-      budget: etat.budget,
+      sorties: etat.sorties,
+      budget_mensuel: etat.budget,
     };
   }
 
-  /* ── Étape 4 : résultat ── */
-  function ecranResultat(profil) {
-    etape = 4;
-    const s = profil.saison;
-    const vibesChoisies = DATA.vibes.filter(v => profil.vibes.includes(v.id));
+  async function analyser() {
+    if (API) {
+      const res = await fetch(API, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload()),
+      });
+      if (!res.ok) throw new Error(`Le serveur d'analyse a répondu ${res.status}`);
+      return await res.json();
+    }
+    // MODE DÉMO : estimation locale depuis les précisions manuelles, même format
+    // de réponse que le backend (contrat dans REPRISE-LOCALE.md).
+    await new Promise(r => setTimeout(r, 1400));
+    return estimationDemo();
+  }
 
-    const pastilles = s.palette.map(c =>
+  function ecranAnalyse() {
+    etape = 7;
+    maj(`
+      <p class="muted">L'analyse — étape 7/${NB_ETAPES - 1}</p>
+      <div class="analyse-attente">
+        <div class="analyse-rond"></div>
+        <h2>${API ? 'Ton personal shopper analyse ta photo…' : 'Analyse en mode démo…'}</h2>
+        <p class="muted">Colorimétrie, morphologie, style — quelques secondes.</p>
+      </div>
+    `);
+    analyser()
+      .then(resultat => {
+        const entrees = payload(); delete entrees.photo_base64;
+        sauver({ resultat, entrees, date: new Date().toISOString().slice(0, 10) });
+        ecranResultat(resultat, entrees);
+      })
+      .catch(err => {
+        maj(`
+          <h2>L'analyse n'a pas abouti</h2>
+          <p class="hint">⚠️ ${err.message}</p>
+          <div class="rack-actions">
+            <button class="btn" id="reessayer">↺ Réessayer</button>
+          </div>
+        `);
+        document.getElementById('reessayer').addEventListener('click', ecranAnalyse);
+      });
+  }
+
+  /* L'estimation locale du mode démo : scoring chaleur/profondeur sur les
+     précisions manuelles → un des 9 profils de data/onboarding.yaml. */
+  function estimationDemo() {
+    const SCORES = {
+      yeux: { 'Marron très foncé': [0, 2], 'Noisette / vert doré': [1, 1], 'Vert': [1, 0], 'Bleu': [-1, -1], 'Gris': [-1, 0] },
+      cheveux: { 'Noir profond': [-1, 2], 'Brun froid / cendré': [-1, 1], 'Brun chaud / châtain': [1, 1], 'Roux / auburn': [2, 0], 'Blond doré': [1, -1], 'Blond cendré': [-1, -1], 'Gris / blanc': [0, -1] },
+      soleil: { 'Bronze vite, dorée': [1, 0], 'Prend des coups de soleil': [-1, 0], 'Rougit puis bronze': [0, 0] },
+      veines: { 'Plutôt vertes': [2, 0], 'Plutôt bleues / violettes': [-2, 0], 'Un mélange des deux': [0, 0] },
+      bijoux: { "L'or (doré)": [2, 0], "L'argent": [-2, 0], 'Les deux se valent': [0, 0] },
+    };
+    let W = 0, D = 0;
+    Object.entries(etat.precisions).forEach(([k, v]) => {
+      const s = (SCORES[k] || {})[v]; if (s) { W += s[0]; D += s[1]; }
+    });
+    let cle;
+    if (W >= 1) cle = D >= 1 ? (W >= 3 ? 'automne-chaud' : (D >= 3 ? 'automne-profond' : 'automne-doux')) : (D <= -2 ? 'printemps-clair' : 'printemps-chaud');
+    else cle = D >= 1 ? (D >= 3 ? 'hiver-profond' : 'hiver-froid') : (D <= -2 ? 'ete-clair' : 'ete-doux');
+    const s = DATA.saisons[cle];
+
+    const regles = [];
+    if (etat.silhouette.startsWith('Épaules larges')) regles.push('Coupes amples et fluides pour équilibrer la carrure — éviter le très cintré.');
+    if (etat.silhouette.startsWith('Fine')) regles.push('Structurer le haut : superpositions, matières texturées, épaules légèrement construites.');
+    if (etat.complexes.includes('Ventre') || etat.complexes.includes('Jambes courtes')) regles.push('Taille haute portée au nombril : elle allonge la jambe et structure le buste.');
+    else regles.push('Taille haute recommandée : c\'est elle qui donne la silhouette héritage.');
+    if (etat.complexes.includes('Petite taille')) regles.push('Tout au même ton (colonne de couleur) et pantalons sans casse pour allonger.');
+    if (etat.complexes.includes('Grande taille')) regles.push('Casser la verticalité : superpositions, revers, contrastes haut/bas.');
+
+    // Aucune vibe likée : on déduit depuis les icônes choisies, sinon on n'invente rien.
+    let idsVibes = etat.vibesAimees;
+    if (!idsVibes.length && etat.icones.length) {
+      idsVibes = [...new Set(DATA.icones.filter(i => etat.icones.includes(i.nom)).map(i => i.vibe))];
+    }
+    const vibesAimees = DATA.vibes.filter(v => idsVibes.includes(v.id));
+    const capsule = DATA.capsule.map(item => {
+      const roles = Array.isArray(item.role) ? item.role : [item.role];
+      return {
+        nom: item.nom, categorie: item.categorie, saison_portee: item.saison_portee,
+        couleur: roles.map(r => s.roles[r] || r).join(', '),
+        matiere: item.matiere, marques: item.marques, budget: item.budget,
+      };
+    });
+    const signatures = vibesAimees.flatMap(v => v.signatures.map(sg => `${v.emoji} ${sg}`));
+
+    return {
+      mode: 'demo',
+      saison: { nom: s.nom, description: s.description, palette: s.palette, interdits: s.interdits.slice(0, 3), metaux: s.metaux },
+      regles_morpho: regles,
+      vibes: vibesAimees.map(v => v.nom),
+      pieces_signature: signatures,
+      capsule,
+      accessoires: null,
+      commentaire: 'Estimation locale (mode démo) : la photo n\'a pas été analysée. Branche le backend pour l\'analyse complète par IA.',
+    };
+  }
+
+  /* ── Étape 8 : restitution (US 2.1 + 4.1) ── */
+  function ecranResultat(r, entrees) {
+    etape = NB_ETAPES - 1;
+    const pastilles = r.saison.palette.map(c =>
       `<button class="pastille" data-hex="${c.hex}" title="Copier ${c.hex}">
         <span class="pastille-rond" style="background:${c.hex}"></span>
         <span class="pastille-nom">${c.nom}</span>
       </button>`).join('');
 
-    const capsuleParCat = {};
-    DATA.capsule.forEach(item => {
-      const roles = Array.isArray(item.role) ? item.role : [item.role];
-      const couleurs = roles.map(r => s.roles[r] || r).join(', ');
-      (capsuleParCat[item.categorie] = capsuleParCat[item.categorie] || []).push({ ...item, couleurs });
-    });
-    const capsuleHtml = Object.entries(capsuleParCat).map(([cat, items]) => `
+    const parCat = {};
+    r.capsule.forEach(i => (parCat[i.categorie] = parCat[i.categorie] || []).push(i));
+    const capsuleHtml = Object.entries(parCat).map(([cat, items]) => `
       <h3>${cat}</h3>
       <div class="cards">${items.map(i => `
         <div class="card">
+          <span class="badge">${i.saison_portee}</span>
           <h3>${i.nom}</h3>
-          <p><strong>${i.couleurs}</strong> · ${i.matiere}</p>
-          <p class="muted">${i.marques} · ${i.budget}</p>
+          <p><strong>${i.couleur}</strong> · ${i.matiere}</p>
+          <p class="muted">${(i.marques || []).map(m => `<a href="${m.url}" target="_blank" rel="noopener">${m.nom} ↗</a>`).join(' · ')}</p>
+          <p class="muted">${i.budget}</p>
         </div>`).join('')}
       </div>`).join('');
 
-    const signatures = vibesChoisies.flatMap(v => v.signatures.map(sg => `<li>${v.emoji} ${sg}</li>`)).join('');
-
     maj(`
-      <h1>${s.nom}</h1>
-      <p class="lead">${s.description}</p>
+      ${r.mode === 'demo' ? '<p class="hint">🧪 <strong>Mode démo</strong> — estimation locale sans analyse de la photo. Le résultat définitif viendra du backend IA.</p>' : ''}
+      <h1>${r.saison.nom}</h1>
+      <p class="lead">${r.saison.description}</p>
 
       <h2>Ta palette</h2>
       <div class="pastilles">${pastilles}</div>
-      <p class="hint">🚫 <strong>À bannir :</strong> ${s.interdits.join(' · ')}<br>⌚ <strong>Métaux :</strong> ${s.metaux}</p>
+      <p class="hint">🚫 <strong>À bannir :</strong> ${r.saison.interdits.join(' · ')}<br>⌚ <strong>Métaux :</strong> ${r.saison.metaux}</p>
 
       <h2>Tes règles de coupe</h2>
-      <ul>${profil.regles.map(r => `<li>${r}</li>`).join('')}</ul>
+      <ul>${r.regles_morpho.map(x => `<li>${x}</li>`).join('')}</ul>
 
       <h2>Ta vibe</h2>
-      <p>${vibesChoisies.map(v => `${v.emoji} <strong>${v.nom}</strong>`).join(' · ')}${profil.icones.length ? ` — dans l'esprit de ${profil.icones.join(', ')}` : ''}</p>
-      <p class="muted">Quotidien : ${profil.contexte} · Budget : ${profil.budget}</p>
-      <h3>Tes pièces signature</h3>
-      <ul>${signatures}</ul>
+      <p>${r.vibes.join(' · ') || '—'}${entrees && entrees.icones && entrees.icones.length ? ` — dans l'esprit de ${entrees.icones.join(', ')}` : ''}</p>
+      ${r.pieces_signature && r.pieces_signature.length ? `<h3>Tes pièces signature</h3><ul>${r.pieces_signature.map(x => `<li>${x}</li>`).join('')}</ul>` : ''}
 
       <h2>Ta garde-robe capsule</h2>
-      <p class="muted">15 à 20 pièces qui vont toutes ensemble, dans TA palette. ${profil.budget.startsWith('<') ? 'Avec ton budget, vise d\'abord la seconde main (Vinted, Vestiaire Collective) et les basiques Uniqlo U — la capsule se construit en 12-18 mois.' : 'Construis-la pièce par pièce, la polyvalence avant la quantité.'}</p>
+      <p class="muted">${r.capsule.length} pièces polyvalentes, classées par saison et catégorie, dans ta palette.</p>
       ${capsuleHtml}
 
-      <h2>Et maintenant ?</h2>
+      ${r.accessoires ? `<h2>Tes accessoires</h2><div class="prose">${r.accessoires}</div>` : ''}
+      ${r.commentaire ? `<p class="muted">${r.commentaire}</p>` : ''}
+
       <div class="rack-actions">
-        <button class="btn" id="copier-md">📄 Copier mon profil (Markdown)</button>
-        <button class="btn" id="copier-ia">🤖 Copier le prompt IA (analyse selfie)</button>
+        <button class="btn" id="studio-btn">🧥 Tester des associations au Studio</button>
         <button class="btn btn-ghost" id="refaire">↺ Refaire le parcours</button>
       </div>
-      <p class="hint">📷 <strong>L'étape d'après :</strong> colle le « prompt IA » dans une session Claude ou Gemini avec un selfie (lumière du jour, sans filtre, fond neutre, pas de lunettes teintées) — l'IA confirmera ou affinera ta saison.</p>
-      <p class="hint">🧥 <strong>Ton propre Vestiaire :</strong> ce site est un projet libre — <a href="${REPO}/fork" target="_blank" rel="noopener">forke le repo ↗</a>, colle ton profil Markdown dans <code>content/guide/_index.md</code> et laisse Claude Code générer ta capsule dans <code>content/garde-robe/</code>.</p>
-      <p id="copie-ok" class="muted" hidden>✅ Copié dans le presse-papier !</p>
+      <p id="copie-ok" class="muted" hidden>✅ Code couleur copié !</p>
     `);
 
     document.querySelectorAll('.pastille').forEach(p =>
-      p.addEventListener('click', () => copier(p.dataset.hex)));
-    document.getElementById('copier-md').addEventListener('click', () => copier(exportMarkdown(profil)));
-    document.getElementById('copier-ia').addEventListener('click', () => copier(exportPromptIA(profil)));
+      p.addEventListener('click', async () => {
+        try {
+          await navigator.clipboard.writeText(p.dataset.hex);
+          const ok = document.getElementById('copie-ok');
+          ok.hidden = false; setTimeout(() => { ok.hidden = true; }, 2000);
+        } catch (e) {}
+      }));
+    document.getElementById('studio-btn').addEventListener('click', () => {
+      window.location.href = document.querySelector('a[href*="studio"]').href;
+    });
     document.getElementById('refaire').addEventListener('click', () => {
-      etat.colo = {}; etat.coloLabels = {}; etat.morpho = {}; etat.vibes = []; etat.icones = [];
-      etat.contexte = ''; etat.budget = '';
+      Object.assign(etat, { photo: null, precisions: {}, taille: '', silhouette: '', complexes: [], vibesAimees: [], vibesPassees: [], icones: [], contexte: '', sorties: '', budget: 250 });
       ecranIntro();
     });
-  }
-
-  function exportMarkdown(p) {
-    const s = p.saison;
-    return `# Mon profil style — ${s.nom}
-
-*Généré par Le Vestiaire le ${p.date}.*
-
-## Colorimétrie : ${s.nom}
-
-${s.description}
-
-- **Palette :** ${s.palette.map(c => `${c.nom} (${c.hex})`).join(', ')}
-- **Interdits :** ${s.interdits.join(', ')}
-- **Métaux :** ${s.metaux}
-
-## Morphologie & règles de coupe
-
-${Object.entries(p.morpho).map(([k, v]) => `- ${k} : ${v}`).join('\n')}
-
-${p.regles.map(r => `- ${r}`).join('\n')}
-
-## Vibe
-
-- **Univers :** ${p.vibes.join(', ')}
-- **Références :** ${p.icones.join(', ') || '—'}
-- **Quotidien :** ${p.contexte} · **Budget :** ${p.budget}
-`;
-  }
-
-  function exportPromptIA(p) {
-    const s = p.saison;
-    return `Tu es un expert senior en personal shopping masculin, colorimétrie des 4 saisons et architecture de garde-robe capsule.
-
-Je joins un selfie pris en lumière du jour, sans filtre, sur fond neutre. Analyse mes couleurs physiques réelles (sous-ton de peau, cheveux, yeux, contraste naturel) et confronte ton analyse à mon auto-diagnostic ci-dessous. Confirme ou corrige ma saison, en justifiant.
-
-MON AUTO-DIAGNOSTIC (test des 4 saisons fait sur levestiaire) :
-- Résultat : ${s.nom} (score chaleur ${p.scores.chaleur >= 0 ? '+' : ''}${p.scores.chaleur}, profondeur ${p.scores.profondeur >= 0 ? '+' : ''}${p.scores.profondeur})
-${Object.entries(p.reponses).map(([k, v]) => `- ${k} : ${v}`).join('\n')}
-
-MA MORPHOLOGIE : ${Object.entries(p.morpho).map(([k, v]) => `${k} : ${v}`).join(' · ')}
-MON STYLE VISÉ : ${p.vibes.join(' + ')}${p.icones.length ? ` (références : ${p.icones.join(', ')})` : ''}
-MON QUOTIDIEN : ${p.contexte} · BUDGET : ${p.budget}
-
-RENDS-MOI :
-1. Ma saison confirmée ou corrigée, avec la palette précise (8 couleurs en HEX) et les 3 couleurs à bannir absolument.
-2. Mes règles morphologiques (hauteurs de taille, volumes, longueurs).
-3. Une garde-robe capsule annuelle de 15 à 20 pièces (nom précis, matière, couleur idéale, 2-3 marques réelles avec fourchette de prix) adaptée à mon style, mon quotidien et mon budget.
-4. Les accessoires : montres (métaux compatibles avec ma saison), lunettes selon la forme de mon visage, bijoux éventuels.
-
-Sois franc : si une pièce que la plupart des hommes portent (ex. noir) ne me va pas, dis-le clairement.`;
-  }
-
-  async function copier(texte) {
-    try {
-      await navigator.clipboard.writeText(texte);
-      const ok = document.getElementById('copie-ok');
-      if (ok) { ok.hidden = false; setTimeout(() => { ok.hidden = true; }, 2500); }
-    } catch (e) { alert('Copie impossible — sélectionne et copie manuellement :\n\n' + texte.slice(0, 200) + '…'); }
   }
 
   function sauver(profil) {
     try { localStorage.setItem(LS_PROFIL, JSON.stringify(profil)); } catch (e) {}
   }
   function profilSauve() {
-    try { return JSON.parse(localStorage.getItem(LS_PROFIL)); } catch (e) { return null; }
+    try {
+      const p = JSON.parse(localStorage.getItem(LS_PROFIL));
+      return p && p.resultat ? p : null;
+    } catch (e) { return null; }
   }
 
   ecranIntro();
