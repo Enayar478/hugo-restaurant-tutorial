@@ -32,9 +32,10 @@
   <h2>Prochains achats</h2>
   {{ $tri := slice }}
   {{ range slice "haute" "moyenne" "basse" }}{{ $tri = $tri | append (where $wishlist "Params.priorite" .) }}{{ end }}
-  <div class="cards">
+  <div class="cards cards-visuel">
   {{ range first 4 $tri }}
     <a class="card" href="{{ .RelPermalink }}">
+      {{ partial "vignette.html" . }}
       <span class="badge badge-{{ .Params.priorite }}">{{ .Params.priorite }}</span>
       <h3>{{ .Title }}</h3>
       <p>{{ .Params.marque }}{{ with .Params.prix }} · {{ . }} €{{ end }}</p>
@@ -48,9 +49,9 @@
 <section>
   <h2>En vente</h2>
   {{ if $enVente }}
-  <div class="cards">
+  <div class="cards cards-visuel">
   {{ range $enVente }}
-    <a class="card" href="{{ .RelPermalink }}"><h3>{{ .Title }}</h3><p>{{ .Params.marque }}</p></a>
+    <a class="card" href="{{ .RelPermalink }}">{{ partial "vignette.html" . }}<h3>{{ .Title }}</h3><p>{{ .Params.marque }}</p></a>
   {{ end }}
   </div>
   {{ else }}<p>Rien en vente pour le moment.</p>{{ end }}

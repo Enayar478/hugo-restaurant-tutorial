@@ -58,6 +58,19 @@ L'objectif : peu de pièces, mais tout va ensemble. Prix indicatifs. Chaque piè
 - **Le design :** bords polis, fond mat/sablé. Un centaure cabré tenant une branche d'olivier. Sur les côtés, des motifs géométriques berbères et un soleil levant au sommet. Devise sur listel : **« COURAGE • RESPECT • HONNEUR »**.
 - **Budget artisan héraldiste :** entre 1 800 € et 3 500 € (création, fonte de l'or massif, gravure en bas-relief à la main).
 
-## 4. Le carnet d'adresses
+## 4. Le protocole photo {#protocole-photo}
+
+Pour que la garde-robe soit belle et homogène à l'écran, chaque pièce est photographiée pareil :
+
+1. **Fond neutre écru** (drap, nappe, parquet clair) — jamais de fond sombre ni chargé.
+2. **Lumière du jour indirecte**, pas de flash, pas de néon.
+3. **Pièce à plat (flat lay)**, boutonnée/zippée, manches légèrement pliées vers l'intérieur.
+4. **Cadrage vertical 3:4**, la pièce remplit le cadre.
+5. **Format** : JPEG, bord long ≤ 1200 px, poids cible < 150 Ko.
+6. **Nom du fichier = slug de la pièce** : `static/img/pieces/blazer-marine.jpg` — elle apparaît alors automatiquement partout, sans toucher au front matter.
+
+Vues secondaires pour la vente (étiquettes, défauts) : `static/img/ventes/<slug>-etiquette.jpg`.
+
+## 5. Le carnet d'adresses
 
 Toutes les adresses sont dans l'espace [Boutiques](../boutiques/).

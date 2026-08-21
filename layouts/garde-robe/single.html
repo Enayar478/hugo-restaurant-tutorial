@@ -3,11 +3,27 @@
   <p><a href="{{ "garde-robe/" | relURL }}">← Garde-robe</a></p>
   <h1>{{ .Title }}</h1>
   <p><span class="badge badge-{{ .Params.statut }}">{{ .Params.statut | humanize }}</span></p>
-  {{ with .Params.image }}<img class="photo" src="{{ . }}" alt="{{ $.Title }}">{{ end }}
+
+  {{ $src := partial "piece-image.html" . }}
+  <div class="vignette vignette-grande">
+    {{ $hex := index site.Data.couleurs (lower (.Params.couleur | default "")) | default "#B98A5C" }}
+    {{ partial "silhouette.html" (dict "categorie" (.Params.categorie | default "accessoire") "hex" $hex) }}
+    {{ if $src }}<img src="{{ $src }}" alt="{{ .Title }}" onerror="this.remove()">{{ end }}
+  </div>
+
+  {{ if not $src }}
+  <div class="hint">
+    📷 <strong>Pas encore de photo.</strong>
+    <a href="{{ site.Params.repoUrl }}/upload/master/static/img/pieces" target="_blank" rel="noopener">Ajouter une photo via GitHub ↗</a>
+    — nomme le fichier <code>{{ .File.BaseFileName }}.jpg</code> et committe : elle apparaîtra ici au prochain déploiement.
+    <em>Protocole : fond écru, lumière du jour, pièce à plat, cadrage 3:4 (voir le <a href="{{ "guide/" | relURL }}#protocole-photo">Guide</a>).</em>
+  </div>
+  {{ end }}
+
   <dl class="specs">
     {{ with .Params.categorie }}<dt>Catégorie</dt><dd>{{ . | humanize }}</dd>{{ end }}
     {{ with .Params.marque }}<dt>Marque</dt><dd>{{ . }}</dd>{{ end }}
-    {{ with .Params.couleur }}<dt>Couleur</dt><dd>{{ . }}</dd>{{ end }}
+    {{ with .Params.couleur }}<dt>Couleur</dt><dd><span class="swatch" style="background:{{ index site.Data.couleurs (lower .) | default "#B98A5C" }}"></span>{{ . }}</dd>{{ end }}
     {{ with .Params.taille }}<dt>Taille</dt><dd>{{ . }}</dd>{{ end }}
     {{ with .Params.saison }}<dt>Saison</dt><dd>{{ delimit . ", " }}</dd>{{ end }}
     {{ with .Params.prix }}<dt>Prix</dt><dd>{{ . }} €</dd>{{ end }}

@@ -6,21 +6,31 @@
     {{ with .Params.occasion }}<span class="badge">{{ . | humanize }}</span>{{ end }}
     {{ with .Params.saison }}<span class="badge">{{ delimit . ", " }}</span>{{ end }}
   </p>
-  <h2>La composition</h2>
-  <div class="cards">
+
+  {{ $gr := where site.RegularPages "Section" "garde-robe" }}
+  {{ $resolues := slice }}
+  {{ $manquantes := slice }}
   {{ range .Params.pieces }}
-    {{ $slug := . }}
-    {{ $p := index (where (where site.RegularPages "Section" "garde-robe") "File.BaseFileName" $slug) 0 }}
-    {{ if $p }}
-    <a class="card" href="{{ $p.RelPermalink }}">
-      <h3>{{ $p.Title }}</h3>
-      <p>{{ $p.Params.marque }}{{ with $p.Params.couleur }} · {{ . }}{{ end }}</p>
+    {{ $p := index (where $gr "File.BaseFileName" .) 0 }}
+    {{ if $p }}{{ $resolues = $resolues | append $p }}{{ else }}{{ $manquantes = $manquantes | append . }}{{ end }}
+  {{ end }}
+
+  <div class="planche">
+  {{ range slice "veste" "haut" "pantalon" "chaussures" "accessoire" }}
+    {{ $cat := . }}
+    {{ range where $resolues "Params.categorie" $cat }}
+    <a class="slot" href="{{ .RelPermalink }}">
+      {{ partial "vignette.html" . }}
+      <span class="slot-titre">{{ .Title }}</span>
     </a>
-    {{ else }}
-    <div class="card card-missing"><h3>{{ $slug }}</h3><p class="muted">pièce introuvable dans la garde-robe</p></div>
     {{ end }}
   {{ end }}
   </div>
+
+  {{ range $manquantes }}
+  <p class="muted">⚠️ Pièce introuvable dans la garde-robe : <code>{{ . }}</code></p>
+  {{ end }}
+
   <div class="prose">{{ .Content }}</div>
 </article>
 {{ end }}

@@ -1,0 +1,7 @@
+{{- /* ctx: une page garde-robe ou wishlist. Photo si dispo, sinon silhouette teintée. */ -}}
+{{- $src := partial "piece-image.html" . -}}
+{{- $hex := index site.Data.couleurs (lower (.Params.couleur | default "")) | default "#B98A5C" -}}
+<div class="vignette">
+  {{ partial "silhouette.html" (dict "categorie" (.Params.categorie | default "accessoire") "hex" $hex) }}
+  {{- if $src }}<img src="{{ $src }}" alt="{{ .Title }}" loading="lazy" onerror="this.remove()">{{ end -}}
+</div>
